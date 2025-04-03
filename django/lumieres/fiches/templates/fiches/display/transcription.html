@@ -1,0 +1,235 @@
+{% extends ext_template %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load fiches_extras %}
+{% load static %}
+
+{% block page_title %}{{ trans.manuscript_b.title|truncatewords:6|slice:"65"}}{{ block.super }}{% endblock page_title %}
+{% block main_menu %}{% with "trans" as fiche_type %}{{ block.super }}{% endwith %}{% endblock %}
+
+
+{% block head_css %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'css/tinyMCE_transcripts.css' %}" media="all" charset="utf-8" />
+	<style>
+		.content .transcription-data {
+			padding: 0 40px;
+		}
+	</style>
+{% endblock head_css %}
+
+{% if trans_user_access %}
+{% block head_js %}
+	{% url 'transcription-delete' trans.id as delete_url %}
+	{{ block.super }}
+
+<!-- jQuery UI CSS (if not loaded in base) -->
+<link rel="stylesheet" href="{% static 'js/lib/jquery-ui-1.9/css/smoothness/jquery-ui-1.9.custom.css' %}" />
+
+<!-- jQuery UI JS with the "button" widget -->
+<script src="{% static 'js/lib/jquery-ui-1.9/js/jquery-ui-1.9.min.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'js/highlighter.js' %}"></script>
+	<script type="text/javascript">
+		{% if user.is_authenticated and display_collector %}
+		//{# ---------- Collection Mamagement ---------- #}
+		function add_obj2col(){
+			collector.addObj_open({
+				item_title: 'Fiche bibliographique: {{ trans.manuscript_b.title|truncate_chars:"64" }} ',
+				item_id: '{{ trans.manuscript_b.id }}',
+				item_type: 'Biblio'
+			});
+		}
+		{% endif %}
+		//{# keep the cite as box at the bottom of the window #}
+		$(function () {
+			var scrollCiteAs = function scrollCiteAs() {
+				var content = $('div.content');
+				var citeAs = $('div.cite_as');
+				var w = $(window);
+				var coffset = content.offset();
+				var cheight = content.height();
+				var wtop = w.scrollTop();
+				var wheight = w.height();
+				if ( coffset.top + cheight - wtop < wheight ) {
+					citeAs.offset({ top: coffset.top + cheight + 10 - citeAs.outerHeight(),
+					 				left: citeAs.offset().left });
+				} else {
+					citeAs.offset({ top: wtop + wheight - citeAs.outerHeight(),
+								 	left: citeAs.offset().left });
+				}
+			};
+			setTimeout(scrollCiteAs, 0); // a direct call doesn't work on FF
+			$(document).scroll(scrollCiteAs);
+		});
+	</script>
+{% endblock %}
+{% endif %}
+
+{#<!-- ========== Fiche Header ========== -->#}
+{% block main_header_title %}Transcription{% endblock %}
+{% block main_header_toolbar_buttons %}
+	<div class="tb_but tb_but_text"><a href="{% url 'display-bibliography' trans.manuscript_b.id %}" title="Aller à la fiche bibliographique"><img src="{% static 'css/images/doctype_manuscript.png' %}" width="16" height="16" /><span>Fiche bibliographique</span></a></div>
+    <div class="tb_sep"></div>
+	{% if user.is_authenticated and display_collector %}
+	<div class="tb_but collection-add-obj"><a href="#" title="{% trans "Ajouter à la collection" %}"><img src="{% static 'css/images/tag_yellow.png' %}" width="16" height="16" alt="{% trans "Ajouter à la collection" %}" /></a></div>
+	<div class="tb_sep"></div>
+	{% endif %}
+	{% if trans_user_access %}
+	{% if perms.fiches.change_any_transcription or trans.access_owner == user and perms.fiches.change_transcription %}
+		{% url 'transcription-edit' trans.id as edit_url %}
+	{% endif %}
+	{% if perms.fiches.delete_any_transcription or trans.access_owner == user and perms.fiches.delete_transcription %}
+		{% url 'transcription-delete' trans.id as delete_url %}
+	{% endif %}
+	{% endif %}
+	{{ block.super }}
+{% endblock %}
+
+
+
+{#<!-- ========== Fiche Content ========== -->#}
+{% block main_content %}
+	{{ block.super }}
+	{% if not trans_user_access %}
+        <p class="info info-noaccess">Vous ne pouvez pas accéder à cette transcription</p>
+	{% else %}
+        <h2 class="transcription">{% include "fiches/bibliography_references/biblio_template.html" with ref=trans.manuscript_b nolink=1 %}</h2>
+		{% include "fiches/display/transcription_field.html" with trans=trans.text %}
+		{% if trans.envelope %}
+		<br/>
+		<div class="field_label">Enveloppe</div>
+		<div class="transcription-data cked-content" data-mode="dipl" style="margin-top: 2px;">
+			{{ trans.envelope|safe }}
+		</div>
+		<br/>
+		{% endif %}
+
+		<div style="border-top:solid 1px black; margin-top: 2em;"></div>
+
+	    {#<!--  Notes  -->#}
+	    <div class="field_group meta_notes">
+	        {% for note in note_qs %}
+	        {% if note|access_lazy:user %}
+	        <div class="field_wrap {% if note.access_public %}public_note{% else %}nonpublic_note{% endif %}">
+	            <div class="field_label">
+	            	Note<br/><br/>
+					{% with access_public=note.access_public access_groups=note.access_groups.all %}{% include "fiches/edition/access_status.html" %}{% endwith %}
+				</div>
+	            <div class="field_value">{{ note.text|safe }}</div>
+	            <div class="fixclear"></div>
+	        </div>
+	        {% endif %}
+	        {% endfor %}
+	    </div>
+
+		<div class="field_group meta_general" style="margin-bottom: 0 !important;">
+			{% if user.is_authenticated %}
+			<div class="field_wrap">
+				<div class="field_label">Transcrit par</div>
+				<div class="field_value">{{ trans.author.get_full_name|default:trans.author.username }}
+					{% if trans.author2 %}
+					et {{ trans.author2.get_full_name|default:trans.author2 }}
+					{% endif %}
+				</div>
+
+				<div class="field_label">{{ trans|field_verbose_name:"status" }}</div>
+				<div class="field_value">{{ trans.get_status_display|lower }}</div>
+
+				<div class="field_label">Dernière modification</div>
+				<div class="field_value last">{{ last_activity.date|date:"d M. Y - H:i" }} ({{ last_activity.user.username }})</div>
+
+				<div class="fixclear"></div>
+			</div>
+			{% endif %}
+			<div class="field_wrap">
+				{% if user.is_authenticated and trans.reviewers %}
+				<div class="field_label">Relu par</div>
+				<div class="field_value">
+					{% for r in trans.reviewers.all %}
+						{{ r.get_full_name|default:r.username }}{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				</div>
+				{% endif %}
+			
+				<div class="field_label">Etendue</div>
+				<div class="field_value">{{ trans.get_scope_display|lower }}</div>
+			
+				{% if user.is_authenticated %}
+				<div class="field_label">Accès:</div>
+				<div class="field_value last">
+					{% with access_public=trans.access_public access_groups=trans.access_groups.all access_private=trans.access_private %}
+						{% include "fiches/edition/access_status.html" %}
+					{% endwith %}
+				</div>
+				{% endif %}
+				<div class="fixclear"></div>
+			</div>
+			
+		</div>
+
+	    <div class="field_group cite_as" style="margin-bottom: 0 !important;">
+	    	<div style="border-top: solid 1px black; padding-top: 10px; margin-top: 5px;">
+	        <div class="field_wrap">
+	            <div class="field_label">Citer comme</div>
+	            <div class="field_value">
+					{% spaceless %}
+	            	{% with trans.manuscript_b as ref %}
+		            	{% for c in ref.get_authors_contributions %}
+		            		{% if not forloop.first %} et{% endif %}
+		            		{% if c.in_brackets %}[{% endif %}{{ c.person.name }}{% if c.in_brackets %}]{% endif %}{% empty %}[nom de l'auteur]{% endfor %},
+
+						{% if ref.book_title %}
+				        &laquo;&nbsp;{{ ref.short_title|default:ref.title }}&nbsp;&raquo;, in <em>{{ ref.book_title }}</em>,
+						{% else %}
+						<em>{{ ref.short_title|default:ref.title }}</em>,
+						{% endif %}
+
+						<span>{{ ref.place|default:"[s.l.]" }}, </span>
+				        <span>{{ ref|date_biblio:"date" }}{% if ref.date2 %}-{{ ref|date_biblio:"date2" }}{% endif %}</span>
+			        	{% if ref.book_title and ref.volume %}<span>, vol.&nbsp;{{ ref.volume }}</span>{% endif %}
+						{% if ref.book_title and ref.pages %}<span>, p.&nbsp;{{ ref.pages }}</span>{% endif %}
+						{% if ref.cote %}<span>, cote&nbsp;{{ ref.cote }}</span>
+						{% else %}<span>, {{ ref.depot }}</span>{% endif %}
+						<span>.</span>
+					{% endwith %}
+	            	Selon la transcription établie par {{ trans.cite_authors }}Lumières.Lausanne (Université de Lausanne),
+	            	url:&nbsp;<a href="{% url 'transcription-display' trans.id %}">
+	            	{% if request.is_secure %}
+	            	<span>https://</span>
+	            	{% else %}
+	            	<span>http://</span>
+	            	{% endif %}<span>{{ request.get_host }}{% url 'transcription-display' trans.id %}</span></a>,
+	            	version du {{ last_activity.date|date:"d.m.Y" }}.
+
+					{% endspaceless %}
+	            </div>
+	            <div class="fixclear"></div>
+	        </div>
+					<div class="printing_comments" style="font-style: italic; padding-top: 10px; text-align: center;">Remarque: nous vous recommandons pour
+						l'impression d'utiliser le navigateur Safari.</div>
+	        </div>
+	    </div>
+
+
+	{% endif %}
+{% endblock main_content %}

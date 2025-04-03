@@ -1,0 +1,86 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+
+{% load i18n fiches_extras static %}
+
+{% block page_title %}
+    | {{ new_object|yesno:"Creation,Edition" }} 
+    | {{ model|meta:"verbose_name" }}
+{% endblock page_title %}
+
+{% block head_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/edit_print.css' %}" media="print" charset="utf-8" />
+{% endblock head_css %}
+
+
+{% block head_js %}
+    {{ block.super }}
+
+    <script type="text/javascript" src="{% static 'js/lib/jquery/jquery.simpletooltip.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/fiches_edit.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+    <script>
+        $(function () {
+            // Copy the toolbar at the end of the document. 
+            // It is done by JS because a Django block cannot be used multiple times per page.
+            var footer = $('div.header').clone(true);
+            $('.title, .status-box', footer).empty();
+            footer.insertAfter('div.content');     
+        });
+    </script>
+{% endblock head_js %}
+
+{% block main_header_title %}
+    {% with model|meta:"verbose_name" as fiche_type_name %}
+        {{ block.super }} - {{ new_object|yesno:"Nouvelle fiche,Modification" }}
+    {% endwith %}
+{% endblock main_header_title %}
+
+{% block main_header_toolbar_buttons %}
+<div class="tb_but tb_but_text save-continue">
+    <a href="#" 
+       onclick="{% block but_savecontinue_onclick %}return fiches_edit.submit_form(event, true);{% endblock %}"
+       title="{% trans "Enregistrer la fiche et continuer l'édition" %}">
+        <img src="{% static 'css/images/disk.png' %}" width="16" height="16" />
+        <span>Sauvegarder</span>
+    </a>
+</div>
+<div class="tb_but tb_but_text save">
+    <a href="#" 
+       onclick="{% block but_save_onclick %}return fiches_edit.submit_form(event);{% endblock %}"
+       title="{% trans "Enregistrer la fiche et fermer" %}">
+        <img src="{% static 'css/images/disk_black_close.png' %}" width="16" height="16" />
+        <span>Enregistrer</span>
+    </a>
+</div>
+<div class="tb_but tb_but_text cancel">
+    <a href="#" 
+       onclick="{% block but_cancel_onclick %}return false;{% endblock %}"
+       title="{% trans "Fermer l'édition sans enregistrer la fiche" %}">
+        <img src="{% static 'css/images/bullet_cross_black.png' %}" width="16" height="16"
+             alt="{% trans "Fermer l'édition sans enregistrer la fiche" %}" />
+        <span>Fermer</span>
+    </a>
+</div>
+{% endblock main_header_toolbar_buttons %}

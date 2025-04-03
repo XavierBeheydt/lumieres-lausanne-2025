@@ -1,0 +1,91 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load fiches_extras %}
+{% load static %}
+
+{% block page_title %} | {{ model|meta:"verbose_name" }}{% endblock page_title %}
+
+{% block head_css %}
+	{{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/display_print.css' %}" media="print" charset="utf-8" />
+    {% endblock head_css %}
+
+{% block head_js %}
+	{{ block.super }}
+    <script type="text/javascript" src="{% static 'js/search-navigator-load.js' %}"></script>	<script type="text/javascript">
+	//{% if delete_url %}
+		function delete_fiche(){
+			var delete_url = "{{ delete_url }}";
+			if (delete_url &&
+				confirm('{% trans "Vous êtes sur le point de supprimer définitivement une fiche.\nCette opération est irrémédiable.\n\nEtes-vous sûr de vouloir continuer ?\n" %}')
+			 ) { document.location = delete_url; }
+			return false;
+		}
+	//{% endif %}
+	//{% if user.is_authenticated and display_collector %}
+		$(document).ready(function(){ $(".collection-add-obj a").click(function(){
+			add_obj2col();
+			return false;
+		}); });
+	//{% endif %}
+	$(document).ready(function(){
+		if ($(".tb_sep").nextAll(".tb_but").length<1) { $(".tb_sep").remove(); }
+
+	});
+	</script>
+{% endblock head_js %}
+
+
+{% block main_header_title %}{% with model|meta:"verbose_name" as fiche_type_name %}{{ block.super }}{% endwith %}{% endblock %}
+{% load static %}
+{% block main_header_toolbar_buttons %}
+    {% if add_url %}
+        <div class="tb_but add">
+            <a href="{{ add_url }}" title="Créer une nouvelle fiche">
+                <img src="{% static 'css/images/table_add.png' %}" width="16" height="16" alt="Créer une nouvelle fiche" />
+            </a>
+        </div>
+        <div class="tb_sep"></div>
+    {% endif %}
+    
+    {% if edit_url %}
+        <div class="tb_but edit">
+            <a href="{{ edit_url }}" title="{% trans 'Editer la fiche' %}">
+                <img src="{% static 'css/images/table_edit.png' %}" width="16" height="16" alt="{% trans 'Editer la fiche' %}" />
+            </a>
+        </div>
+    {% endif %}
+    
+    {% if delete_url %}
+        <div class="tb_but delete">
+            <a href="{{ delete_url }}" title="{% trans 'Supprimer la fiche' %}" onclick="return delete_fiche();">
+                <img src="{% static 'css/images/trash_red.png' %}" width="16" height="16" alt="{% trans 'Supprimer la fiche' %}" />
+            </a>
+        </div>
+    {% endif %}
+{% endblock main_header_toolbar_buttons %}
+
+
+{% block main_content %}
+	{% include "fiches/collections/collector.html" %}
+{% endblock main_content %}

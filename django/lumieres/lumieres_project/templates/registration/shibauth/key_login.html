@@ -1,0 +1,123 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% block head_css %}
+    {{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/switchaai.css">
+{% endblock %}
+
+{% block main_header_title %}Login AAI - Clé d'inscription{% endblock %}
+{% block main_header_toolbar %}{% endblock main_header_toolbar %}
+
+
+{% block main_content %}
+<div class="container_12">
+	<div class="grid_7 push_2">
+	    <div class="instruction">{% filter linebreaks %}
+		Vous avez été correctement authentifié par le service SwitchAAI, mais vous n'êtes pas encore inscrit comme utilisateur de l'application.
+	    
+		Si vous avez une <strong>clé d'inscription</strong> pour Lumières.Lausanne, saisissez-là ci-dessous.
+		Cette opération est nécessaire uniquement lors de la première connexion. 
+		
+		Si vous n'avez pas de clé d'inscription, contactez le responsable de votre cours pour en obtenir une. Retour à la <a href="{% url 'home' %}">page d'acceuil</a>.
+		
+	    {% endfilter %}</div>
+	{% if errors %}
+	    <div class="message message-error">
+	        <p class="message-title"><strong>Erreur</strong></p>
+	        <dl class="error-list">
+	        {% for err in errors %}
+	            <dt>{{ err.title }}</dt>
+	            <dd>{{ err.message }}</dd>
+	        {% endfor %}
+	        </dl>
+			<div class="clear"></div>
+	    </div>
+	{% endif %}
+	
+	    <form method="post">{% csrf_token %}
+	        <div style="text-align: center"><label for="id-key"><strong>Clé d'inscription: </strong></label>
+			<input type="text" id="id-key" name="key" size="32" maxlength="32" value='{{ key|default:"" }}'/>
+	        <button type="submit">Envoyer</button></div>
+	    </form>
+		
+	</div>
+	<div class="clear"></div>
+    <div class="grid_12">&nbsp;</div>
+{% endblock main_content %}
+</div>
+
+
+
+{% comment %}
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Authentication by key</title>
+	<style type="text/css">
+	/*<![CDATA[ */
+	body { font-family: Thaoma, Verdana, Helvetica, Arial, sans-serif ; font-size: 11pt; }
+	h1,h2,h3,h4,p,dl { margin: 0; padding: 0; }
+	.main { width: 450px; margin: 30px auto; }
+	h3 { margin: 10px 0 20px 50px; }
+	.instruction {}
+	.error-messages { margin: 30px 0px 10px; border: solid 1px #d00; background: #ffCCCC; font-size: 9pt; position: relative;}
+	.error-messages h4 { font-size: 11pt; letter-spacing: 0.6px; font-weight: bold; color: #FFF; background-color: #DD0000; padding: 0 15px; position: absolute; height: 20px; top: -20px; left: -1px; }
+	.error-messages .message { padding: 5px 5px 0; }
+	.error-messages dl { padding: 0 5px 10px; }
+	.error-messages dt { font-weight: bold; color: #A00; }
+	form { margin: 20px; }
+	pre { white-space: pre-wrap;}
+	/* ]]>*/
+	</style>
+</head>
+<body>
+	<h3>{% trans "Authentication by key" %}</h3>
+	<div class="instruction">{% filter linebreaks %}{% blocktrans %}Please, enter the key in the box below.
+	This operation is only needed the first time you login to this site.
+	For your next visit, you can use the "AAI" login button
+	{% endblocktrans %}{% endfilter %}</div>
+{% if errors %}
+	<div class="error-messages">
+		<h4>{% blocktrans count errors|length as c %}Error{% plural %}Errors{% endblocktrans %}</h4>
+		{#<p class="message">{% blocktrans %}Some errors while processing your request, please review the list below and correct them to continue{% endblocktrans %}</p>#}
+		<dl>
+		{% for err in errors %}
+			<dt>{{ err.title }}</dt>
+			<dd>{{ err.message }}</dd>
+		{% endfor %}
+		</dl>
+	</div>
+{% endif %}
+	<form method="post">{% csrf_token %}
+		<div><label for="id-key">{% trans "Key" %}: </label><input type="text" id="id-key" name="key" size="32" maxlength="32"/>
+		<button type="submit">{% trans "Submit" %}</button></div>
+	</form>
+</body>
+</html>
+
+
+{% endcomment %}

@@ -1,0 +1,5 @@
+[mysqld]
+max_allowed_packet=256M
+innodb_buffer_pool_size=512M
+net_read_timeout=120
+net_write_timeout=120

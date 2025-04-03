@@ -1,0 +1,421 @@
+{% extends ext_template %}
+{% comment %}
+<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->
+{% endcomment %}
+{% load i18n fiches_extras %}
+
+{% block head_js %}
+    {{ block.super }}
+{% endblock head_js %}
+
+{% block page_content_title %}<h1 class="ia">Recherche avancée</h1>{% endblock %}
+
+{% block main_header %}
+<div class="sub-navig ui-tabs">
+    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header">
+        <li class="ui-state-default ui-corner-top"><a href="{% url 'search-biblio' %}">Recherche bibliographique</a></li>
+        <li class="ui-state-default ui-corner-top"><a href="{% url 'list-person' %}">Liste des personnes</a></li>
+        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a>Recherche biographique</a></li>
+    </ul>
+</div>
+<div class="clear"></div>
+{% endblock %}
+
+{% block main_content %}
+    {{ block.super }}
+<script type="text/javascript">
+    // JS code specific for Person's filters
+    var search_model_name = 'Person';
+    $(document).ready(function(){
+        $("select.filter-society").on('change', function(){
+            var soc_select = $(this),
+                soc_val = soc_select.val(),
+                target_op = (soc_val == 'notnull') ? 'isnull' : 'exact';
+            soc_select.parents('.search-filter').find('[name=op]').val(target_op);
+        });
+        $("select.filter-society").change();
+    });
+</script>
+
+<div id="search-filter-definitions" style="display:none;">
+    
+    <!-- ===== Filtre - Modèle ===== -->
+    <div class="search-filter">
+        <span class="filter-class-selector">
+            <select class="filter-op" name="filter_op">
+                <option value="and">ET</option>
+                <option value="or">OU</option>
+            </select>
+            <select class="filter-class" name="filter_class" title="Sélectionner le type de filtre">
+                <option>[ choisir un filtre ]</option>
+                <option value="birth">Est né</option>
+                <option value="death">Est décédé</option>
+                <option value="prof">A exercé la profession</option>
+                <option value="society">Est membre de la société</option>
+                <option value="journal_articles">A publié</option>
+            </select>
+        </span>
+        <span class="filter-content-placeholder"></span>
+        <span class="filter-actions">
+            <button class="filter-up"   type="button" onclick="search_filter.filter_move(this,'up');">^</button>
+            <button class="filter-down" type="button" onclick="search_filter.filter_move(this,'down');">v</button>
+            <button class="filter-del"  type="button" onclick="search_filter.filter_del(this);">x</button>
+        </span>
+    </div>
+    
+    <!-- ===== Filtres - Contenu ===== -->
+    
+    <!-- Naissance -->
+    <span class="search-filter-content filter-birth">
+        <input type="hidden" name="post-process-hook" value="biography__last__version__post_hook" />
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__birth_date" />
+            <input type="hidden" name="type" value="date" />
+            <select class="filter-operator" name="op" size="1">
+                <option value="year">en (année)</option>
+                <option value="lt">avant (année)</option>
+                <option value="gt">après (année)</option>
+                <option value="range">au cours de la période de</option>
+            </select>
+            <input type="text" maxlength="4" size="4" name="val" />
+            <span style="display:none;" class="op_spec op_range">
+                &nbsp;à&nbsp;
+                <input type="text" maxlength="4" size="4" name="val1" />
+            </span>
+        </span>
+    </span>
+    
+    
+    <!-- Décès -->
+    <span class="search-filter-content filter-death">
+        <input type="hidden" name="post-process-hook" value="biography__last__version__post_hook" />
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__death_date" />
+            <input type="hidden" name="type" value="date" />
+            <select class="filter-operator" name="op" size="1">
+                <option value="year">en (année)</option>
+                <option value="lt">avant (année)</option>
+                <option value="gt">après (année)</option>
+                <option value="range">au cours de la période de</option>
+            </select>
+            <input type="text" maxlength="4" size="4" name="val" />
+            <span style="display:none;" class="op_spec op_range">
+                &nbsp;à&nbsp;
+                <input type="text" maxlength="4" size="4" name="val1" />
+            </span>
+        </span>
+    </span>
+
+
+    <!-- Profession -->
+    <span class="search-filter-content filter-prof">
+        <input type="hidden" name="post-process-hook" value="biography__last__version__post_hook" />
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__profession__position" />
+            <input type="hidden" name="type" value="string" />
+            <input type="hidden" name="op" value="icontains" />
+            <label>de: </label>
+            <input type="text" maxlength="256" size="28" name="val" title="Titre de la profession"/>
+        </span>
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__profession__place" />
+            <input type="hidden" name="type" value="string" />
+            <input type="hidden" name="op" value="icontains" />
+            <label>à: </label>
+            <input type="text" maxlength="256" size="24" name="val" title="Lieu d'exercice de la profession"/>
+        </span><br/>
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__profession__begin_date" />
+            <input type="hidden" name="type" value="date" />
+            <input type="hidden" name="op" value="gt" />
+            <label>au cours de la période de: </label>
+            <input type="text" maxlength="4" size="4" name="val"/>
+        </span>
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__profession__end_date" />
+            <input type="hidden" name="type" value="date" />
+            <input type="hidden" name="op" value="lt" />
+            <label>à: </label>
+            <input type="text" maxlength="4" size="4" name="val"/>
+        </span>
+    </span>
+    
+    
+    <!-- Membre de la Société -->
+    <span class="search-filter-content filter-society">
+        <!--<input type="hidden" name="pre-process-hook" value="biography__societymembership__date__pre_hook" />-->
+        <input type="hidden" name="post-process-hook" value="biography__last__version__post_hook" />
+        
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__societymembership__society__id" />
+            <input type="hidden" name="type" value="number" />
+            <input type="hidden" name="op" value="exact" />
+            <select name="val">
+                <optgroup label="Laisser vide pour chercher dans toutes">
+                    <option value="notnull"></option>
+                </optgroup>
+                <optgroup label="Sociétés avec membres">
+                {% for society in societies %}
+                    {% if society.societymembership_set.distinct.count %}
+                        <option value="{{ society.id }}">{{ society.name }}</option>
+                    {% endif %}
+                {% endfor %}
+                </optgroup>
+                <optgroup label="Sociétés sans membres">
+                {% for society in societies %}
+                    {% if not society.societymembership_set.distinct.count %}
+                        <option value="{{ society.id }}">{{ society.name }}</option>
+                    {% endif %}
+                {% endfor %}
+                </optgroup>
+            </select>
+        </span>
+        {% comment %}
+        <!--
+        -- La recherche sur la période doit aussi inclure la situation où la période de recherche est plus longue
+        -- que la durée d'inscription à la société. Par exemple: membre de 1720 à 1730 doit sortir dans une recherche sur période de 1700 à 1800
+        -- avec L = limite inférieure de période et H limite supérieure
+        -- 
+        --  membership plus long que période cherchée:  begin_date < L  &&  end_date > H
+        --  membership inclus dans période cherchée   :  begin_date > L  &&  end_date < H        (<--)
+        --  membership incluant deux premiers et 
+            recoupant même partiellement la période  :  begin_date < H  &&  end_date > L
+            
+            @TO-DO: Trouver solution pour inclure tous les cas de figure de manière compréhensible pour utilisateur
+        -->
+        {% endcomment %}
+        <br/>
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__societymembership__begin_date" />
+            <input type="hidden" name="type" value="date" />
+            <input type="hidden" name="op" value="gt" />
+            <label>au cours de la période de: </label>
+            <input type="text" maxlength="4" size="4" name="val"/>
+        </span>
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="biography__societymembership__end_date" />
+            <input type="hidden" name="type" value="date" />
+            <input type="hidden" name="op" value="lt" />
+            <label>à: </label>
+            <input type="text" maxlength="4" size="4" name="val"/>
+        </span>
+        
+    </span>
+    
+    <!-- Publications -->
+    <span class="search-filter-content filter-journal_articles">
+        <input type="hidden" name="post-process-hook" value="biography__last__version__post_hook" />
+        
+        <span class="search-filter-content-part">
+            <input type="hidden" name="attr" value="contributiondoc__document__journal_title" />
+            <input type="hidden" name="type" value="string" />
+            <input type="hidden" name="op" value="iexact" />
+            <label>dans la revue: </label>
+            <select size="1" name="val" title="Titre du journal">
+                <option value="">[ choisir une revue ]</option>
+                {% for j in journals %}
+                <option value="{{ j }}" title="{{ j }}">{{ j|truncate_chars:"48" }}</option>
+                {% endfor %}
+            </select>
+        </span>
+
+    </span>
+    
+    
+</div>
+
+<div>
+    <button type="button" onclick="search_filter.filter_add();">Ajouter un filtre</button>
+    <button type="button" onclick="search_filter.filters_remove_all();">Supprimer les filtres</button>
+    <span>|</span>
+    <input type="hidden" name="o" id="result-ordering" value="name" />
+    {% comment %}
+    <!--
+    <label for="result-ordering">trier par:</label>
+    <select name="o" id="result-ordering">
+        <option value="name">Personne</option>
+        <option value="date" title="Date croissante">Date &lt;</option>
+        <option value="-date" title="Date décroissante">Date &gt;</option>
+    </select>
+    <span> | </span>
+    -->
+    {% endcomment %}
+    <button type="button" onclick="display_params_dialog();">Paramètres d'affichage</button>
+    <span>|</span>
+    <button type="button" onclick="execute_query()">Chercher</button>
+</div>
+
+<div id="search-filter-implied" style="display:none;">
+    <div class="search-filter">
+        <span class="filter-class-selector">
+            <input type="hidden" name="filter_op" value="and" />
+            <input type="hidden" name="filter_class" value="has_biography" />
+        </span>
+        <span class="search-filter-content filter-has_biography">
+            <span class="search-filter-content-part">
+                <input type="hidden" name="attr" value="biography" />
+                <input type="hidden" name="type" value="number" />
+                <input type="hidden" name="val" value="notnull" />
+                <input type="hidden" name="op" value="isnull" />
+            </span>
+        </span>
+    </div>
+</div>
+
+<div id="search-filter-applied">
+
+</div>
+
+<div id="search-results">
+    
+</div>
+
+<div class="dialogs-definition" style="display:none;">
+
+    <div id="ui-dialog-filterset-settings" title="Parmètres du groupe de filtres">
+        <div id="ui-dialog-filterset-settings-tabs-display">
+            <!-- -->
+            <p class="validateTips">Vous pouvez définir les conditions d'affichage de chaque colonne:
+                <dl class="caption">
+                    <dt><code>auto</code></dt>
+                    <dd>Affiché seulement si le filtre correspondant est utilisé</dd>
+                    <dt><code>toujours</code></dt>
+                    <dd>Toujours affiché</dd>
+                    <dt><code>jamais</code></dt>
+                    <dd>Jamais affiché</dd>
+                </dl>
+            </p>
+            <hr/>
+            <form>
+                <fieldset>
+                    <ul class="column-display-settings">
+                        <input type="hidden" name="model_name" value="{{ model_name }}" />
+                        <li>
+                            <span class="column-title">Nom</span>
+                            {% with "name" as col_id %}
+                            {% with display_settings.name as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Date de naissance/décès</span>
+                            {% with "birth" as col_id %}
+                            {% with display_settings.birth as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Relations</span>
+                            {% with "relation" as col_id %}
+                            {% with display_settings.relation as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                {#<input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>#}
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Profession</span>
+                            {% with "prof" as col_id %}
+                            {% with display_settings.prof as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Sociétés / académies</span>
+                            {% with "society" as col_id %}
+                            {% with display_settings.society as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Religion</span>
+                            {% with "religion" as col_id %}
+                            {% with display_settings.religion as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            <span class="column-title">Articles du journal</span>
+                            {% with "journal_articles" as col_id %}
+                            {% with display_settings.journal_articles as col_display %}
+                            {% spaceless %}
+                            <div id="radio_{{ col_id }}" class="column-settings">
+                                <input type="radio" id="radio_{{ col_id }}_1" value="auto" name="display_col__{{ col_id }}" {% if col_display == "auto" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_1">auto</label>
+                                <input type="radio" id="radio_{{ col_id }}_2" value="on"   name="display_col__{{ col_id }}" {% if col_display == "on" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_2">toujours</label>
+                                <input type="radio" id="radio_{{ col_id }}_3" value="off"  name="display_col__{{ col_id }}" {% if col_display == "off" %} checked="checked" {% endif %} /><label for="radio_{{ col_id }}_3">jamais</label>
+                            </div>
+                            {% endspaceless %}
+                            {% endwith %}
+                            {% endwith %}
+                        </li>
+                    </ul>
+        
+                </fieldset>
+            
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

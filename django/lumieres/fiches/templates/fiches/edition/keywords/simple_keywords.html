@@ -1,0 +1,190 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+<div class="fieldWrapper keywords required {% if form.subj_primary_kw.errors %} errors{% endif %}">
+	<script type="text/javascript">
+	var simple_keyword = {
+		  // URL for retrieving pkw list via XHR
+		pkw_url: '{% url 'ajax-search' %}?model_name=PrimaryKeyword&q=&search_field=_null_id',
+		  // Default (empty) option for pkw
+		pkw_default_option: '<option value="-1">[ mot-clé primaire ]</option>',
+		
+		  // URL for retrieving skw list via XHR
+		skw_url: '{% url 'ajax-search' %}?model_name=SecondaryKeyword&q=#&search_field=%3Dprimary_keyword__id',
+		  // Default (empty) option for skw
+		skw_default_option: '<option value="">[ mot-clé secondaire ]</option>',
+		  // Cached skw options retrieved by XHR
+		skw_options: {},
+	
+		/**
+		 * Convert a list in the form `label`|`id`, one entry per line
+		 * in a list of <option> tag to be inserted in a <select> tag like
+		 * <option value="`id`">`label`</oprion>
+		 * 
+		 * @param {Object} data the list in plain text
+		 */
+		kwlist2option: function(data) {
+			var entries = data.split("\n"), 
+				output = "";
+			for (var e = 0; e < entries.length; e++) {
+				var entry_val = entries[e].split('|');
+				if (!isNaN(entry_val[1])) {
+					output += '<option value="' + entry_val[1] + '">' + entry_val[0] + '</option>' + "\n";
+				}
+			}
+			return output;
+		},
+		
+		/**
+		 * Main function for initializing the primary keyword selector.
+		 * It will load the pkw values and define the envent handler when pkw value change.
+		 * 
+		 * When pkw value changes, first try to see if the corresponding skw are in the cache ( simple_keyword.skw_options )
+		 * if not load them with XHR and store them in the cache.
+		 * In both case, load the skw selector with the skw's <option> list
+		 * 
+		 */
+		init_pkw: function(){
+			  // Load the pkw values
+			$.get(simple_keyword.pkw_url, function(data){
+				var pkw_options = simple_keyword.pkw_default_option + simple_keyword.kwlist2option(data);
+				  // Setup the selector and the change event handler
+				$(".select-primary-kw").html(pkw_options).change(function(evt){
+					
+					  // These two var will be used in a closure
+					var pkw_sel = $(this),
+						pkw_id = pkw_sel.val();
+						
+					  // If the pkw's id is not empty, replace the skw selector's option with the ones corresponding to the new pkw and ensure the skw selector is enabled
+					if (!isNaN(pkw_id) && pkw_id>0) {
+						  // First try in the cache
+						if ( typeof simple_keyword.skw_options['pkw_'+pkw_id] !== 'undefined' ) {
+							pkw_sel.next('select.select-secondary-kw').html(simple_keyword.skw_options['pkw_'+pkw_id]).removeAttr('disabled').focus();
+						  // Load fresh data
+						} else {
+							$.get(simple_keyword.skw_url.replace('#',pkw_id), function(data){
+								var skw_options = simple_keyword.skw_default_option + simple_keyword.kwlist2option(data);
+								simple_keyword.skw_options['pkw_'+pkw_id] = skw_options;
+								pkw_sel.next('select.select-secondary-kw').html(skw_options).removeAttr('disabled').focus();
+							});
+						}
+						// If the pkw's id is empty, replace the skw selector's option with the empty option and disable the selector
+					} else {
+						pkw_sel.next('select.select-secondary-kw').html(simple_keyword.skw_default_option).attr('disabled', 'true')
+							   .end().blur();
+					}
+				}).change();
+				
+				$(".keyword-helper-addbut").click(function(){
+					simple_keyword.addToList($(this).parents(".keywords-container"));
+				});
+			});
+		},
+		
+		prependDeleteButton: function(obj) {
+			var delBut = $('<button>',{
+				'class': "staticlist-delete-item",
+				'type': "button",
+				'click': function() { $(this).parent().fadeOut('fast', function(){$(this).remove()}); return false },
+				'text': "Supprimer"
+			}).prependTo(obj);
+			delBut.button({text: false, icons: { primary: "ui-icon-close" }});
+			return delBut;
+		},
+		
+		addToList: function(kwcont) {
+			try {
+				var sel_pkw = kwcont.find(".select-primary-kw"), 
+					sel_skw = kwcont.find(".select-secondary-kw"), 
+					val_cont = kwcont.find(".staticlist_values"),
+					
+					pkw_label = sel_pkw.find(":selected").text(),
+					pkw_val = sel_pkw.val(),
+					skw_label = sel_skw.find(":selected").text(),
+					skw_val = sel_skw.val(), 
+					
+					temp = '<div class="staticlist_value_entry">' +
+								'<span class="staticlist_value_label"><span class="pkw-label">%(pkw_label)s</span><span class="kw-sep">&nbsp;&raquo;&nbsp;</span><span class="skw-label">%(skw_label)s</span></span>' +
+								'<input type="hidden" name="subj_primary_kw" value="%(pkw_value)s" />' +
+								'<input type="hidden" name="subj_secondary_kw" value="%(skw_value)s" />' +
+							'</div>', 
+				
+					kw_entry = $(temp.replace('%(pkw_label)s', pkw_label)
+									.replace('%(skw_label)s', skw_label)
+									.replace('%(pkw_value)s', pkw_val)
+									.replace('%(skw_value)s', skw_val)
+								);
+				
+				if (isNaN(pkw_val) || pkw_val <= 0) {
+					return false;
+				}
+				
+				if (isNaN(skw_val) || skw_val <= 0) {
+					kw_entry.find(".skw-label, .kw-sep, [name=subj_secondary_kw]").remove();
+				}
+				
+				val_cont.append(kw_entry);
+				simple_keyword.prependDeleteButton(kw_entry);
+				
+				sel_pkw.val(-1).change();
+				return false;
+			}
+			catch (e) {
+				return false;
+			}		
+		}
+	};
+	$(document).ready(function(){
+		simple_keyword.init_pkw();
+		$(".keywords-container .staticlist_value_entry").each(function(){ simple_keyword.prependDeleteButton($(this)); });
+	});
+	</script>
+	<style type="text/css">
+		.select-secondary-kw { width: 280px; }
+	</style>
+	<label class="single-line">Mots-clés <span class="required_marker">*</span></label>
+	<div class="keywords-container">
+		{% if form.subj_primary_kw.errors %}{{ form.subj_primary_kw.errors }}{% endif %}
+		<div class="staticlist_values">
+		{% for pkw in primary_kw %}
+			<div class="staticlist_value_entry">
+				<span class="staticlist_value_label"><span class="pkw-label">{{ pkw.word }}</span></span>
+				<input type="hidden" name="subj_primary_kw" value="{{ pkw.id }}" />
+			</div>
+		{% endfor %}
+		{% for skw in secondary_kw %}
+			{% with skw.parent as pkw %}
+			<div class="staticlist_value_entry">
+				<span class="staticlist_value_label"><span class="pkw-label">{{ pkw.word }}</span><span class="kw-sep">&nbsp;&raquo;&nbsp;</span><span class="skw-label">{{ skw.word }}</span></span>
+				<input type="hidden" name="subj_primary_kw" value="{{ pkw.id }}" />
+				<input type="hidden" name="subj_secondary_kw" value="{{ skw.id }}" />
+			</div>
+			{% endwith %}
+		{% endfor %}
+		</div>
+		<span class="staticlist_addbox">
+			<select class="staticlist_helper_select select-primary-kw"></select>
+			<select class="staticlist_helper_select select-secondary-kw" disabled="true"></select>
+			<button type="button" class="staticlist_helper_addbut keyword-helper-addbut">Ajouter un mot-clé</button>
+		    <span class="staticlist_add_info">Validez votre sélection avec le bouton <strong>"Ajouter un mot-clé"</strong></span>
+		</span>
+	</div>
+</div>

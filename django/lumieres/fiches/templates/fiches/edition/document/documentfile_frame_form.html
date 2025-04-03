@@ -1,0 +1,211 @@
+{% extends "base_framed2.html" %}
+{% load i18n static %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+
+{% block head_css %}
+    {{ block.super }}
+    <style type="text/css">
+        #ajax-loader {
+            display: none;
+            text-align: center;
+            font-size: 80%;
+            color: #444;
+            margin-top: 30px;
+        }
+        label[for="file-clear_id"] {
+            float: none;
+            display: inline;
+            background-color: transparent;
+        }
+
+        #file-field .file-field-wrap {
+            clear: both;
+        }
+        #file-field .file-field-wrap a:after {
+            content:"";
+            display:table;
+        }
+    </style>
+{% endblock head_css %}
+
+{% block head_js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        function submit_form(){
+            $("#docfile-form-id").hide().submit();
+            $("#ajax-loader").show();
+        }
+        function update_type() {
+            var v = $("#type-selector").val();
+            if (v == 'local') {
+                $("#file-field, #access_groups-field").show();
+                $("#url-field").hide();
+                $(".help_text.forlocal").show();
+                $(".help_text.forexternal").hide();
+            } else {
+                $("#file-field, #access_groups-field").hide();
+                $("#url-field").show();
+                $(".help_text.forlocal").hide();
+                $(".help_text.forexternal").show();
+            }
+        }
+
+        $(document).ready(function(){
+            $("#type-selector").change(function(){
+                update_type();
+            });
+            update_type();
+            try {
+                window.parent.documentfiles.properties_submit = submit_form;
+            } catch (e) {
+                alert("Unable to set parent callback");
+            }
+            $(":checkbox").css({width:'auto'});
+        });
+    </script>
+{% endblock head_js %}
+
+{% block body %}
+{% if docfile_saved %}
+    {% if create_done %}
+        <script type="text/javascript">
+            window.parent.documentfiles.create_done("{{ docfile_id }}");
+        </script>
+        <p>Document file (<code>{{ docfile_id }}</code>) created sucessfully</p>
+    {% else %}
+        <script type="text/javascript">
+            window.parent.documentfiles.edit_done();
+        </script>
+    {% endif %}
+{% else %}
+    <div class="docfile">
+        <div class="content" style="padding: 3px;">
+            <form id="docfile-form-id" class="docfile-form" method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="help_text">
+                    <p style="margin-bottom: 10px;">
+                        Avant d’ajouter un document, vérifier dans <em>Choisir un document 
+                        existant</em> s’il n’est pas déjà dans la base de données.
+                    </p>
+                </div>
+
+                <li>
+                    <label for="type-selector">{% trans "Type" %}</label>
+                    <select size="1" id="type-selector">
+                        <option value="local" {% if not form.instance.url %}selected="selected"{% endif %}>Document local</option>
+                        <option value="external" {% if form.instance.url %}selected="selected"{% endif %}>URL externe</option>
+                    </select>
+                </li>
+
+                <li>
+                    <div id="file-field">
+                        {{ form.file.errors }}
+                        {{ form.file.label_tag }}<br/>
+                        <div class="file-field-wrap">
+                            {{ form.file }}
+                        </div>
+                        <div class="help_text">
+                            <p>
+                                Ne télécharger qu’un <b>fichier pdf/jpg</b> et 
+                                <b>le nommer</b> préalablement toujours ainsi :
+                                Nom de l’auteur sans accents suivi immédiatement des initiales de son prénom_Année.
+                                Préciser le volume dans le cas échéant. Date complète pour la correspondance.
+                                Si l’auteur est anonyme, mettre le début du titre à la place de l’auteur, sans espace.
+                            </p>
+
+                            <p>
+                                Ex : CernuschiA_2005 ; SecretanJD_1847 ; SinnerJR_1787_vol.2 ; 
+                                LaHarpeFC_12.02.1798 ; Ordonnancecontrelescharlatans_1789 ;
+                            </p>
+                        </div>
+                    </div>
+                    <div id="url-field">
+                        {{ form.url.errors }}
+                        {{ form.url.label_tag }}{{ form.url }}
+                        {% if form.file.help_text %}
+                            <span class="help_text">{{ form.file.help_text }}</span>
+                        {% endif %}
+                    </div>
+                </li>
+
+                <li>
+                    {{ form.title.errors }}
+                    {{ form.title.label_tag }}{{ form.title }}
+                    <div class="help_text forlocal">
+                        <p>
+                            Le titre des documents est identique à celui du fichier, 
+                            avec un espace à la place du tiret : 
+                            SecretanJD 1947 ; SinnerJR 1787 vol.2
+                        </p>
+                    </div>
+                    <div class="help_text forexternal">
+                        <p>
+                            Indiquer le site où est hébergé le document lorsque c’est pertinent. Ex :
+                            Googlebook SecretanJD 1845 ; Gallica ConstantB 1804 ; 
+                            RHV 43/1945, p. 100-124
+                        </p>
+                    </div>
+                </li>
+
+                <fieldset>
+                    <legend>Accès</legend>
+                    <input type="hidden" name="access_owner" value="{{ user.id }}" />
+
+                    <div class="help_text forlocal">
+                        <p>Par défaut, l'accès est réservé aux <em>Utilisateurs</em> de la base.</p>
+                        <p>
+                            Si vous souhaitez rendre public le document, veuillez d’abord vous 
+                            adresser aux responsables de la base afin de vous assurer s’il n’existe 
+                            pas de droits qui en empêcherait la publication.
+                        </p>
+                    </div>
+                    <div class="help_text forexternal">
+                        <p>Par défaut, l'accès est réservé aux <em>Utilisateurs</em> de la base.</p>
+                    </div>
+
+                    <li id="access_public-field">
+                        {{ form.access_public.errors }}
+                        {{ form.access_public.label_tag }}{{ form.access_public }}
+                        {% if form.access_public.help_text %}
+                            <div class="help-text">{{ form.access_public.help_text }}</div>
+                        {% endif %}
+                    </li>
+
+                    <li id="access_groups-field">
+                        {{ form.access_groups.errors }}
+                        {{ form.access_groups.label_tag }}{{ form.access_groups }}
+                        {% if form.access_groups.help_text %}
+                            <div class="help-text">{{ form.access_groups.help_text }}</div>
+                        {% endif %}
+                    </li>
+                </fieldset>
+            </form>
+            <div id="ajax-loader" style="display:none">
+                <p>Envoi des données...</p>
+                <!-- Replaced {{ STATIC_URL }} with {% static '...' %} -->
+                <img src="{% static 'images/prgress_bar.gif' %}" alt="Progress bar" />
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock body %}

@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}" />
+{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="{% static 'js/lib/jquery/jquery.min.js' %}"></script>
+{% endblock %}
+
+{% block title %}{{ title }} | {% trans 'Administration Lumières.Lausanne' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Administration Lumières.Lausanne' %}</h1>
+{% endblock %}
+
+{% block nav-global %}
+<ul id="navigation">
+	<li><a href="{% url 'home' %}">{% trans 'Retour vers les fiches' %}</a></li>
+</ul>
+{% endblock %}

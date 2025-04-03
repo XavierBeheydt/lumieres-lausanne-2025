@@ -1,0 +1,62 @@
+/* Collection Index */
+.left-col { float: left; width: 250px; }
+.right-col { margin-left: 255px; border-left: solid 1px #999; min-height: 80px; }
+
+.detail_column { border-left: solid 1px #999; }
+
+.collection-list li { cursor: pointer; line-height: 18px; margin: 1px 0 2px; font-size: 11px; }
+.collection-list li.selected, .collection-list li:hover.selected { background: url("images/coll_selected.png") no-repeat scroll 100% 50% #EFEEE9; color: #000; cursor: default; }
+.collection-list li:hover { background-color: #FFD; color: #900; }
+.collection-list .cmd-box { font-size: 9px; }
+.ui-buttonset .ui-button { margin-right: 0 !important; }
+
+#collection-new-collection { font-size: 11px; margin-top: 10px; }
+
+/**
+ * Collection Details
+ */
+.collection-details { padding: 0 5px; font-size: 12px; }
+.collection-details h4 { font-size: 16px; padding-bottom: 2px; border-bottom: 1px solid #776C4E; }
+.collection-details h5 { margin-top: 15px; }
+.collection-details .description { margin: 5px 0; }
+.collection-details p, .collection-details dl { padding-left: 15px; }
+
+.collection-details .access-status .hilight { font-weight: 500; color: #F33; } 
+
+.collection-element-list { padding-left: 10px; margin-top: 5px; }
+.collection-element-list li { line-height: 1.6em; clear: both; padding: 3px; margin: 6px 0 4px; min-height: 22px; }
+.collection-element-list li:nth-child(even) { background-color: #F3F3F3; }
+.collection-element-list li:hover { background-color: #EEEEFF; }
+.collection-element-list li.hilight { background: #FFDDDD; }
+.collection-element-list button { font-size: 7px; margin-right: 5px; float: left; }
+
+.collection-element-list .biblioref-item { line-height: 1.25em; margin-left: 30px; }
+
+/**
+ * Collector, Collection shared
+ */
+.ll-collector-item-title,
+.ll-collection-item-title { font-weight:bold; font-size:90%; color: #333; }
+
+
+/**
+ * Collector styles
+ */
+.ajax-loader { display: none; text-align: center; font-size: 80%; color: #444; margin-top: 30px; }
+.collector-list-add-button { background: url(images/tag_yellow.png) no-repeat 0 0; width: 16px; height: 16px; position: absolute; }
+#ll-collector-dialog { overflow: hidden; }
+#ll-collector-dialog p { margin-bottom: 10px; }
+#ll-collector-dialog-add-but { font-size: 11px; }
+#ll-collector-dialog-collinfo { margin-top: 25px; }
+#ll-collector-dialog-collinfo a { font-size: 11px; line-height: 16px; display: block; background-color: #EEE; }
+#ll-collector-dialog-collinfo .ajax-loader { padding: 5px; border: solid 1px #FFF; height: 150px; }
+#ll-collector-dialog-collinfo-data { padding: 5px; border: solid 1px #EEE; height: 150px; overflow: auto;}
+#ll-collector-dialog-collinfo a span.ui-icon { float: left; margin-right: 5px; }
+
+
+
+/**
+ * Collection PopUp
+ */
+
+#collection-edit-dlog { background-color: #FAFAFA; }

@@ -1,0 +1,94 @@
+{% extends "base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load static i18n fiches_extras %}
+
+{% block page_title %}{% endblock page_title %}
+
+{% block head_css %}
+    {{ block.super }}
+{% endblock head_css %}
+
+{% block head_js %}
+    {{ block.super }}
+    <script>
+        $(document).ajaxSend(function (event, xhr, settings) {
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+            const sameOrigin = (url) => url.startsWith(location.origin);
+            if (!/^GET|HEAD|OPTIONS|TRACE$/.test(settings.type) && sameOrigin(settings.url)) {
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            }
+        });
+    </script>    
+{% endblock %}
+
+
+{% block page_content %}
+<div id="main-box" class="main">
+    <div class="header">
+        {% block main_header %}
+        <div class="container_12">
+            {% block status-box %}
+            <div class="status-box grid_4 push_4">
+                {% block status-message %}{% endblock %}
+            </div>
+            {% endblock %}
+            <div class="toolbar-box grid_4">
+                {% block main_header_toolbar %}
+                <div class="toolbar">
+                    {% block main_header_toolbar_buttons %}{% endblock %}
+                    <div class="tb_right_cap"></div>
+                </div>
+                {% endblock %}
+            </div>
+            <div class="clear"></div>
+        </div>
+        {% endblock %}
+    </div>
+
+    {% captureas title_content %}
+    {% spaceless %}
+    {% block main_header_title %}{% endblock %}
+    {% endspaceless %}
+    {% endcaptureas %}
+    {% if title_content %}
+    <h1 class="ia">{{ title_content }}</h1>
+    {% endif %}
+
+    <div class="content">
+        {% block main_content %}{% endblock %}
+    </div>
+</div>
+{% endblock page_content %}

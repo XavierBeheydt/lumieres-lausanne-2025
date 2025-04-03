@@ -1,0 +1,82 @@
+
+
+.main { border:1px solid #C6BDA8; margin-left: 200px; width: 980px; }
+
+/*
+==========-  HEADER  -===============================================
+*/
+
+/* -- Header general layout -- */
+.main .header { display: table; width: 100%; height: 28px; }
+.main .header .wrapper { display: table-row; }
+.main .header .title, 
+.main .header .status-box, 
+.main .header .toolbar-box { display: table-cell; width: 33%; vertical-align: middle; }
+
+.main .header { color:#776C4E; background-color: #E3DFD4; border-bottom: solid 1px #776C4E; }
+
+
+/*---------- TITLE ---------------------------------------*/
+.main .header .title { 
+    padding: 2px 0 5px 10px; white-space: nowrap; 
+    font-family: "Trebuchet MS",Helvetica,sans-serif; font-size:18px; font-weight: bold; letter-spacing:1px;
+}
+
+
+/* ---------- STATUS BOX ---------------------------------------*/
+.main .header .status-box { text-align: center; font-size: 13px; }
+.main .header .status-box div { line-height: 21px; color: #000; background-color: #fff; border: solid 1px #776C4E; white-space: nowrap; padding: 0 5px; }
+.main .header .status-box .save_done { background-color: #29BB15; color: #fff; }
+.main .header .status-box .not_valid { background: #F7F67B url(images/error.png) no-repeat scroll 5px 50%; color: #3E3E1F; font-weight: bold; }
+.main .header .status-box .bio_valid { background: #29BB15 url(images/tick.png) no-repeat scroll 5px 50%; color: #fff; font-weight: bold; }
+
+
+/*---------- TOOLBAR ---------------------------------------*/
+.main .header .toolbar { float: right; height: 28px; background: url(images/toolbar_bg.png) 0 0 no-repeat; padding-left: 5px; }
+.main .header .toolbar .tb_right_cap { display: block; float: left; width: 5px; height: 28px; background: url(images/toolbar_bg.png) 100% 0 no-repeat; }
+.main .header .toolbar .tb_but,
+.main .header .toolbar .tb_sep { display: block; float: left; }
+.main .header .toolbar .tb_but a { display: block; width: 20px; height: 19px; margin: 4px 3px 0; text-decoration: none; background: url(images/tb_but_bg.png) 0px 0 no-repeat; border: 1px solid #98958E; }
+.main .header .toolbar .tb_but a:hover { border-color: #776C4E; background-position: 0 -19px; }
+.main .header .toolbar .tb_but a:active { border-color: #FF6C4E; background-position: 0 -19px; }
+.main .header .toolbar .tb_but a img { margin: 1px 0px 0px 2px; cursor: pointer; }
+.main .header .toolbar .tb_but span img { margin: 1px 0px 0px 2px; }
+.main .header .toolbar .tb_but a.last img { margin-left: 2px; }
+.main .header .toolbar .tb_sep { width: 7px; height: 28px; background: url(images/tb_sep.png) 0 0 no-repeat; }
+.main .header .toolbar .tb_but span.disabled-but { display: block; width: 20px; height: 19px; margin: 4px 3px 0; text-decoration: none; background: #C3C3C3; border: 1px solid #98958E; }
+
+.main .header .toolbar .tb_but_text a {
+	color: #574C2E;
+    background-color: #E3DFD4;
+    line-height: 17px;
+    padding: 0 3px 0 0;
+    width: auto;
+}
+.main .header .toolbar a span { display: none; }
+.main .header .toolbar .tb_but_text a span { display: inline; visibility: visible; }
+.main .header .toolbar .tb_but_text a:hover { color: #222; background-color: #F9F8F4; }
+.main .header .toolbar .tb_but_text a img { vertical-align: middle; margin-right: 3px; margin-top: -1px; }
+
+/* CSS3 */
+.main .header .toolbar .tb_but a {
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}
+
+
+
+/*
+==========-  LEFT MENU  -============================================
+*/
+
+
+/*
+==========-  CONTENT  -==============================================
+*/
+.content { font-family: Verdana,Geneva,Arial,Helvetica,sans-serif; line-height: 1.3em;  padding: 10px; overflow: hidden; }
+.content h2 { margin-bottom: 15px; }
+
+
+input[type=hidden] { display:none; }
+

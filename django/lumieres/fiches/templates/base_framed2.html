@@ -1,0 +1,105 @@
+{% load i18n static %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="utf-8">
+    {% block head_meta %}{% endblock head_meta %}
+    <title>
+        {% block page_title %}{% endblock %} | {% block site_title %}Lumières.Lausanne{% endblock %}
+    </title>
+
+    {% block head %}
+    {% block head_css %}
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}" media="all" charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'js/lib/jquery-ui-1.9/css/smoothness/jquery-ui-1.9.custom.css' %}" media="all" charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'css/main2.css' %}" media="all" charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'css/fiches_base2.css' %}" media="all" charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'css/edit_base2.css' %}" media="all" charset="utf-8" />
+    <!-- 
+    <link rel="stylesheet" href="{% static 'css/styles_all.min.css' %}" media="all" charset="utf-8" />
+    -->
+    <link rel="stylesheet" href="{% static 'css/main2_theme.css' %}" media="all" charset="utf-8" />
+    {% endblock head_css %}
+
+    {% block head_js %}
+    <!-- Scripts -->
+    <script type="text/javascript" src="{% static 'js/lib/modernizr-1.7.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/lib/jquery/jquery-1.8.2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/lib/jquery/jquery.cookie.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/lib/jquery-ui-1.9/js/jquery-ui-1.9.min.js' %}"></script>
+
+    <script type="text/javascript">
+    /**
+     * Send csrf cookie on ajax request
+     * See https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ for details
+     * (Minified by JF)
+     */
+    $(document).ajaxSend(function(c,f,b){
+        function a(g){var l=null;if(document.cookie&&document.cookie!=""){
+            var k=document.cookie.split(";");for(var j=0;j<k.length;j++){
+                var h=jQuery.trim(k[j]);if(h.substring(0,g.length+1)==(g+"=")){
+                    l=decodeURIComponent(h.substring(g.length+1));break}}}return l}
+        function e(h){var j=document.location.host;var k=document.location.protocol;
+            var i="//"+j;var g=k+i;return(h==g||h.slice(0,g.length+1)==g+"/")||(h==i||h.slice(0,i.length+1)==i+"/")||!(/^(\/\/|http:|https:).*/.test(h))}
+        function d(g){return(/^(GET|HEAD|OPTIONS|TRACE)$/.test(g))}
+        if(!d(b.type)&&e(b.url)){f.setRequestHeader("X-CSRFToken",a("csrftoken"))}
+    });
+    </script>
+    {% endblock head_js %}
+    {% endblock head %}
+</head>
+<body class="framed">
+{% block body %}{% endblock body %}
+
+<script>
+{# Strips unwanted style attributes from Word-pasted text in CKEditor #}
+$(function(){
+    if (window.CKEDITOR) {
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            editor.dataProcessor.htmlFilter.addRules({
+                elements: {
+                    '$': function(element) {
+                        if (element.name == 'style') {
+                            return false;
+                        }
+                        if (
+                            element.attributes.style && 
+                            element.attributes.style.indexOf('background-color:') !== 0
+                        ) {
+                            delete element.attributes.style;
+                        }
+                        if (element.attributes.align) {
+                            delete element.attributes.align;
+                        }
+                        return element;
+                    }
+                }
+            });
+        });
+    }
+});
+</script>
+</body>
+</html>

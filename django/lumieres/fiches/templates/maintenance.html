@@ -1,0 +1,45 @@
+{% extends "fiches/home2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% comment %}
+	Utiliser ce template pour générer une page static de maintenance
+{% endcomment %}
+
+{% block page_title %}Maintenance{% endblock %}
+
+{% block login_info %}{% endblock %}
+
+{% block main_content %}
+{% spaceless %}
+<div style="
+	width:66%; padding: 20px; margin: 10px auto 40px;
+	text-align: center; font-size: 130%; color: #600; 
+	border: solid 1px #C00; background: #FEE; 
+	background: -moz-radial-gradient(bottom, ellipse cover, #ffeeee 0%, #ffdddd 80%);
+	background: -webkit-radial-gradient(bottom, ellipse cover, #ffeeee 0%, #ffdddd 80%);
+	box-shadow: 0 3px 8px -1px #FFB0B0 inset;
+	border-radius: 2px;">
+	<h1 style="font-size: 120%">Lumières.Lausanne est en maintenance.</h1>
+	<p style="margin-top: 10px;">Il n'est pas possible d'utiliser le site pour l'instant.</p>
+</div>
+{% endspaceless %}
+	{{ block.super }}
+{% endblock %}

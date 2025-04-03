@@ -1,0 +1,50 @@
+services:
+
+  db:
+    container_name: db
+    image: mysql:9.2.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/home/sql-dumps
+      - ./mysql-custom.cnf:/etc/mysql/conf.d/mysql-custom.cnf
+    environment:
+      MYSQL_DATABASE: django_db
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    networks:
+      - LL2025
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    container_name: django
+    build:
+      context: ./django
+    volumes:
+      - ./django:/app
+      - ./django/lumieres/media:/app/lumieres/media
+    working_dir: /app/lumieres
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_NAME: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      - db
+    networks:
+      - LL2025
+
+networks:
+  LL2025:
+    driver: bridge
+
+volumes:
+  mysql_data:

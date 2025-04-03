@@ -1,0 +1,227 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% comment %}<!--
+===========================================================
+==    Relation Formset
+===========================================================
+-->{% endcomment %}
+{% load i18n %}
+{{ relationFormset.management_form }}
+<div class="formset relation-formset">
+    <div class="form-header">
+		<div class="field">Personne</div>
+    <div class="field"></div>
+		<div class="field">Type de relation</div>
+		{% if relationFormset.can_delete %}<div class="field delete-field">Supprimer</div>{% endif %}
+    </div>
+    {% for rel_form in relationFormset.forms %}
+    <div class="form-instance relation-form{% if rel_form.errors %} error-in-form{% endif %}">
+    	{{ rel_form.id }}
+        <div class="field related-person">{{ rel_form.related_person.errors }}
+        	{{ rel_form.related_person }}
+        </div>
+        <div>est son/sa</div>
+        <div class="field relationtype">{{ rel_form.relation_type.errors }}
+        	{{ rel_form.relation_type }}
+        </div>
+       {% if relationFormset.can_delete and rel_form.instance.id %}<div class="field delete-field">{{ rel_form.DELETE }}</div>{% endif %}
+       {% if not rel_form.instance.id %}<div class="field delete-field"><input type="checkbox" name="extra_form_DELETE" class="formset_delete_but"></div>{% endif %}
+	</div>
+    {% endfor %}
+	<div id="relation-empty_form" class="empty_form" style="display:none">
+	    <div class="form-instance relation-form">
+	        {{ relationFormset.empty_form.id }}
+	        <div class="field related-person">
+	            {{ relationFormset.empty_form.related_person }}
+	        </div>
+          <div>est son/sa</div>
+	        <div class="field relationtype">
+	            {{ relationFormset.empty_form.relation_type }}
+	        </div>
+	       <div class="field delete-field"><input type="checkbox" name="extra_form_DELETE" class="formset_delete_but"></div>
+	    </div>
+	</div>
+</div>
+
+<div class="formset-new-field-bar" id="relation-formset-new-field-bar">
+    <button type="button" class="formset-add-new-field" id="id_but_relation_add_field">Ajouter des champs</button>
+</div>
+
+{% if reverse_relations %}
+<ul class="relations-list relations-reverse">{% spaceless %}
+{% for r in reverse_relations %}{% with r.bio.person as related_person %}
+  <li>
+  {% if related_person.has_biography and r.bio.valid or not r.bio.valid and perms.fiches.access_unvalidated_biography %}
+    {{ r.relation_type.reverse_name }}: <a href="{% url 'biography-display' related_person.id %}">{{ related_person }}</a>
+  {% else %}
+    {{ r.relation_type.reverse_name }}: <span>{{ related_person }}</span>
+  {% endif %}
+  {% if not r.bio.valid %}<div class="invalid-bio-marker" title="{% trans "Relation définie dans une biographie pas encore validée" %}"></div>{% endif %}
+  </li>{% endwith %}
+{% endfor %}
+{% endspaceless %}</ul>
+{% endif %}
+
+<script type="text/javascript">
+(function($){
+    var init_when_doc_ready = false;
+
+    function __init__() {
+		$(".Relation_related_person:visible").each(function(){ bindRelatedPersonAutocomplete(this) });
+
+        var rel_formset = $(".relation-formset");
+		// addRemoveFormBut
+		rel_formset.find(".relation-form").not(".empty_form .relation-form").each(function(){
+			fiches_edit.addRemoveFormBut(this, "Supprimer la relation", updateNewFieldBarWidth);
+		});
+		rel_formset.find(".form-header .delete-field").text(" ");
+		rel_formset.find(".form-instance .delete-field").css({paddingLeft: 0, paddingRight: 0});
+
+
+        // Add field button
+        $("#relation-formset-new-field-bar")
+          .width(rel_formset.width())
+          .css({textAlign: "right"});
+        $("#id_but_relation_add_field").bind('click', add_relation_field);
+        fiches_edit.applyAddFieldButtonUI( $("#id_but_relation_add_field") );
+
+
+		$(".error-in-form .disabled_lookup").removeAttr("disabled");
+		$(".formset .error-in-form")
+		    .find(".field").css({borderWidth:"1px 0"}).end()
+		    .find(".field:first").css({borderLeftWidth:"1px"}).end()
+		    .find(".field:last").css({borderRightWidth:"1px"}).end();
+   };
+    if (init_when_doc_ready) { $(document).ready(function(){__init__();}); }
+    else { __init__(); }
+
+
+	var updateNewFieldBarWidth = function() {
+		if ($(".form-instance:animated").length) {
+		  setTimeout(updateNewFieldBarWidth, 50);
+		} else {
+		  $("#relation-formset-new-field-bar").width($(".relation-formset").width());
+		}
+	}
+
+    function add_relation_field() {
+        var emptyFormHtml = $("#relation-empty_form").html(),
+            newIdx = parseInt($("#id_relation_set-TOTAL_FORMS").val()),
+            newForm = $(emptyFormHtml.replace(/__prefix__/g, newIdx));
+        $("#id_relation_set-TOTAL_FORMS").val(newIdx + 1);
+
+        $(".relation-form").not("#relation-empty_form .relation-form").last().after(newForm);
+        $(".Relation_related_person:visible", newForm).each(function(){ bindRelatedPersonAutocomplete(this) });
+
+        fiches_edit.addRemoveFormBut(newForm, "Supprimer la relation", updateNewFieldBarWidth);
+
+		/*
+        if ($.fn.placeHolder) {
+            $("input[placeholder]", newForm).each(function(){ var $t = $(this);
+                $t.placeHolder({'text': $t.attr("placeholder")});
+            });
+        }
+        */
+
+    }
+
+    function updateNewFieldBarWidth() {
+
+	}
+
+
+    function bindRelatedPersonAutocomplete(o) {
+   	    $(o).autocomplete("{% url 'ajax-search' %}", {
+				extraParams: {
+					search_field: "name",
+			        app_label: "fiches",
+			        model_name: "Person",
+	                outf: "_m__format_for_ajax_search",
+			        and_queries: '[{"field":"==modern","value":false}]',
+			        not_queries: '[{"field":"==id","value":{{ person_id }}}]'
+			    },
+	            formatResult: function (data, label) {
+	            	// {# removes the birth/death dates if any from the submitted value #}
+	            	if ( label.match(/\d+]$/) ) {
+	            		return label.substring(0, label.lastIndexOf(' ['));
+	            	} else {
+	            		return label;
+	            	}
+	            }
+   	        })
+
+			.result(function(event, data, formatted) {
+                $(this).change();
+                return;
+            })
+
+/*
+				var $t = $(this),
+			    	v = $t.val()
+			    	n = $t.attr('name')
+			    	target = $("[name='"+n.substr("lookup_".length)+"']");
+
+                if (data) {
+					target.val(data[1] + "|" + data[0]);
+                } else {
+					if (!v || ($t.attr("placeholder") && v == $t.attr("placeholder")) ) {
+						target.val("");
+					} else {
+						target.val(target.val().split("|")[0] + "|" + v);
+			        }
+			    }
+*/
+
+
+            //.blur(function(){ $(this).search(); })
+
+            .change(function(){
+                var $t = $(this),
+		            v = $t.val(),
+		            n = $t.attr('name'),
+		            target = $("[name='"+n.substr("lookup_".length)+"']");
+	            if (!v) {
+	              target.val("");
+	            } else {
+	                target.val(target.val().split("|")[0] + "|" + v);
+	            }
+/*
+                if (!v || ($t.attr("placeholder") && v == $t.attr("placeholder")) ) {
+                    target.val("");
+                } else {
+                    target.val(target.val().split("|")[0] + "|" + v);
+                }
+*/
+            })
+
+            .change();
+   }
+
+
+   function isModernAuthors() {
+       return '[{"field":"==modern","value":###}]'.replace('###', false);
+   }
+
+
+
+
+})(jQuery);
+</script>

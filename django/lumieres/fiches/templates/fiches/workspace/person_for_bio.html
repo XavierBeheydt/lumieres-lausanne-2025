@@ -1,0 +1,5 @@
+<ul>
+{% for person in persons %}
+	<li>{{ person.name }}{% if perms.fiches.add_biography %}&nbsp;<a href="{% url 'biography-create' person.id %}" target="_top">[ créer ]</a>{% endif %}</li>
+{% endfor %}
+</ul>

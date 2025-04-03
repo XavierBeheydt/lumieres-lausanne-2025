@@ -1,0 +1,679 @@
+/*
+@import url("fontfacekit/DejaVu-Sans/stylesheet.css");
+@import url("fontfacekit/lato/stylesheet.css");
+@import url("fontfacekit/open-sans/stylesheet.css");
+*/
+
+body {
+	font: 13px/1.231 OpenSans, "Lucida Grande", Verdana,"Trebuchet MS", sans-serif;
+	color: #222;
+}
+.ui-tabs-panel { font: 13px/1.231 OpenSans, "Lucida Grande", Verdana,"Trebuchet MS", sans-serif; }
+
+h3, h4 { font-weight: 500; }
+
+/* Other font-family def */
+#page-banner , #page-content .header .toolbar { 
+    font: normal 100%/1.231 "Trebuchet MS",Helvetica,arial,sans-serif;  /* 13px / 16px */
+}
+#page-content .header .title { 
+    font: bold 138.46%/1.6111 "Trebuchet MS",Helvetica,arial,sans-serif;  /* 18px / 29px */
+}
+
+
+#container_main { margin: 10px auto; width: 980px; position: relative; }
+#container_main { background: #FAFAFA; border: 1px solid #BDBDBD; }
+
+/* ---------- UI x-class ---------- */
+/**
+ * ui-dialog extra class
+ */
+.ll-dialog { font-size: 12px !important; }
+
+
+/*---------- Global Links ----------*/
+a, a:link, a:visited { color: #0033CC; text-decoration: none; }
+a:hover   { color: #990000; text-decoration: underline; }
+a:active  { color: #FF0000; }
+#main-box a.external { background: url("images/external.png") no-repeat scroll right center transparent; padding-right: 13px; }
+
+
+/*
+ * ========== PAGE-BANNER =====================================================
+ */
+#page-banner {
+    position: relative;
+	overflow: hidden;
+	height: 100px;
+	border-bottom: 0;
+}
+#page-banner .logo { margin: 5px 0 0 5px; }
+#page-banner h1.app_title { font-size: 184.6%; letter-spacing: 0.1em; position: absolute; top: 5px; left: 230px; }
+
+/* ---------- Navigation Menu ---------- */
+#page-banner .main-navig { position: absolute; bottom: 10px; left: 230px; }
+#page-banner .main-navig li { float: left; }
+#page-banner .main-navig li a {
+    display: block;
+	background: #8C8C8C;
+	border: solid 1px #9C9C9C;
+	border-right-color: #7C7C7C;
+	padding: 5px 10px; 
+	color: #F0F0F0; text-decoration: none; 
+}
+#page-banner .main-navig li:last-child a { border-right-color: #9C9C9C; }
+#page-banner .main-navig li a:hover { background: #9C9C9C; border-right-color: #9C9C9C; color: #FFF; }
+
+#page-banner .main-navig li.disabled a { color: #AAA; font-style: italic; }
+#page-banner .main-navig li.disabled a:hover { color: #AAA; font-style: italic; cursor: default; background: #8C8C8C; border-right-color: #7C7C7C; }
+
+/* ---------- OLD VERSION ----------
+#page-banner ul.main-navigation-menu { position: absolute; bottom: 0; height:21px; margin-left:200px; font-size: 14px; overflow: hidden; width: 100%; }
+#page-banner .main-navigation-menu li { float:left;margin:0 10px 0 0; }
+#page-banner .main-navigation-menu li .nolink,
+#page-banner .main-navigation-menu li a { display:block; padding:2px 10px; height: 16px; border: solid 1px #776C4E; border-width:1px 1px 0; font-size: 12px; line-height: 1.4em; color:#776C4E; text-decoration:none; font-weight: bold; }
+#page-banner .main-navigation-menu li a:hover { background-color:#F7F6F1; }
+#page-banner .main-navigation-menu li.selected a { background-color:#F7F6F1; height: 17px; border-top-width:3px; color:#990000; cursor:default; padding-bottom:0px; }
+*/
+
+/* ---------- User Info ---------- */
+/*#login-info {
+	position: absolute; top: 3px; right: 5px; 
+	font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif; 
+	font-size: 11px; 
+	text-align: right; 
+	color: #5D5D5A;
+}
+#login-info .user-info .user-name { font-weight: bold; }
+#login-info .login-action { color: #900; }
+#login-info .login-action a { color: #900; }*/
+
+#login-info {
+	position: absolute; top: 0px; right: 0px; width: 320px; height: 30px; padding: 5px 5px 5px 7px;
+	border: solid 1px #CCCCCC; border-width: 0 0 1px 1px;
+	text-align: right; 
+    background: #e2e2e2; color: #5D5D5A;
+}
+#login-info.no-login { width: auto; height: 17px; padding: 3px 5px; }
+
+#login-info .user, #login-info .login-action, #login-info .login-message { font-size: 11px; line-height: 1em; max-width: 160px;} 
+
+#login-info .wrapper { }
+/*#login-info .user { display: block; padding-left:10px; float: left; }*/
+#login-info .user { display: block; position: absolute; top: 2px; right: 5px; white-space: nowrap; max-width: 175px; }
+#login-info .user .user-name { font-weight: bold; }
+
+#login-info .login-action { position: absolute; right: 3px; top: 15px; }
+#login-info.no-login .login-action { position: static; }
+
+#login-info a.navig {
+    float: left;
+	/*position: absolute; bottom: 5px; left: 5px;*/
+    background: #dfdfdf;
+    border: solid 1px #9C9C9C;
+    border-right-color: #7C7C7C;
+    padding: 5px 10px; 
+    color: #4C4C4C; text-decoration: none; 
+}
+#login-info a.navig:hover { background: #efefef; color: #222; }
+
+#login-info.bigname { height: 40px; }
+#login-info.bigname .user { max-width: 310px; }
+#login-info.bigname a.navig { margin-top: 13px; }
+
+/* CSS3 */
+#login-info {
+    -moz-border-radius-bottomleft: 6px; -webkit-border-bottom-left-radius: 6px; border-bottom-left-radius: 6px;
+	background: #e2e2e2;
+	background: -moz-linear-gradient(top, #e2e2e2 0%, #dbdbdb 50%, #d1d1d1 51%, #fafafa 100%);
+	background: -moz-linear-gradient(top, #e0e4e8 0%, #dadee3 50%, #cfd5db 51%, #fafafb 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(50%,#dbdbdb), color-stop(51%,#d1d1d1), color-stop(100%,#fafafa));
+	background: -webkit-linear-gradient(top, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fafafa 100%);
+	background: -o-linear-gradient(top, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fafafa 100%);
+	background: -ms-linear-gradient(top, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fafafa 100%);
+	background: linear-gradient(top, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fafafa 100%);
+}
+#login-info:hover {
+    background: -moz-linear-gradient(top, #dee5ed 0%, #d6dfe9 50%, #cad5e2 51%, #f9fafb 100%);
+}
+#login-info.no-login  { background: #e2e2e2; }
+
+
+#login-info .login-action, #login-info .login-action a { color: #900; }
+
+
+
+
+/* ---------- Search Box ---------- */
+#page-banner .searchbar { position: absolute; bottom: 10px; right: 10px; }
+#page-banner .searchbar input.searchbar-field { width: 280px; height: 19px; margin-left: 50px; }
+
+/* ----------OLD VERSIOn ---------- 
+#banner-search-box { font-size: 10px; position: absolute; right: 290px; top: 5px;  background: #fff url(images/search_small.png) 100% 50% no-repeat; }
+#banner-search-box input { font-size: 10px; height: 16px; border: solid 1px #C2C2C2; background: transparent; }
+#banner-search-box button { font-size: 10px; }
+
+#banner-search-box.ui input { font-size: 10px; height: 22px; padding: 1px 2px 1px 4px; }
+#banner-search-box.ui input { -webkit-appearance: textfield !important;  box-sizing: content-box; }
+#banner-search-box.ui input:focus,
+#banner-search-box.ui input:hover { border-color: #999; }
+#banner-search-box.ui button { font-size: 10px; position: absolute; top: 1px; right: -0px; }
+*/
+
+
+
+/*
+==========-  LEFT MENU  -============================================
+
+#left-menu { float: left; position: relative; background-color: #E3DFD4; border: 1px solid #C6BDA8; padding: 0 5px; }
+#left-menu ul { font-size:13px; }
+#left-menu li { margin:8px 5px 8px 0; }
+#left-menu li a { border-bottom:1px solid #E3DFD4; color:#534B36; display:block; text-decoration:none; padding: 2px 0; }
+#left-menu li a:hover { background-color:#EFE8D6; border-bottom-color:#534B36;color:#333333; }
+#left-menu li .selected { display: block; border-bottom:1px solid #E3DFD4; padding: 2px 0; color: #990000; }
+
+#left-menu .collapse-trigger { width: 16px; height: 13px; position: absolute; top: 0px; right: 0px; background: url(images/column_collapse_expand.png) 2px -13px no-repeat; cursor: pointer; }
+#left-menu .collapse-trigger:hover { background-color: #FEE8D6; }
+#left-menu .collapse-trigger-expanded { background-position: 2px 0px; }
+*/
+
+/*
+==========-  MAIN AREA  -============================================
+*/
+#page-content { margin-top: 0px; }
+
+/* ---------- Header ---------- */
+#page-content .header { position: relative; height: 29px; }
+#page-content .header + h1.ia { margin-top: -29px; }
+#page-content .header { color: #6C6C6C; }
+#page-content .header .title { 
+    white-space: nowrap; 
+	letter-spacing:1px;
+}
+
+/* ---------- Sub navigation ----------- */
+#page-content .header .sub-navig {
+	white-space: nowrap;
+	letter-spacing: 1px;
+	font: bold 138.46%/1.6111 "Trebuchet MS",Helvetica,arial,sans-serif;
+	font: bold 13px/1.231 "Trebuchet MS",Helvetica,arial,sans-serif;	
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 0;
+}
+#page-content .header .sub-navig ul {
+	background: none;
+	border: none;
+	padding-top: 1px;
+}
+#page-content .header .sub-navig ul li {
+	margin-right: 0;
+}
+#page-content .header .sub-navig ul li a {
+	color: #6C6C6C;
+	padding: 0.4em 1em;
+	font-weight: bold;
+}
+
+/* ---------- Toolbar ---------- */
+#page-content .header .toolbar { 
+    position: absolute; right: 2px; height: 28px;
+    padding-left: 5px; margin-top: 1px;  
+    background: transparent url(images/toolbar_bg_gray.png) 0 0 no-repeat;
+}
+
+#page-content .header .toolbar .tb_right_cap { 
+    display: block; float: left; width: 5px; height: 28px; 
+	background: transparent url(images/toolbar_bg_gray.png) 100% 0 no-repeat;
+}
+#page-content .header .toolbar .tb_but,
+#page-content .header .toolbar .tb_sep { display: block; float: left; }
+#page-content .header .toolbar .tb_but a { display: block; width: 20px; height: 19px; margin: 4px 3px 0; text-decoration: none; background: url(images/tb_but_bg_gray.png) 0px 0 no-repeat; border: 1px solid #98958E; }
+#page-content .header .toolbar .tb_but a:hover { border-color: #776C4E; background-position: 0 -19px; }
+#page-content .header .toolbar .tb_but a:active { border-color: #FF6C4E; background-position: 0 -19px; }
+#page-content .header .toolbar .tb_but a img { margin: 1px 0px 0px 2px; cursor: pointer; }
+#page-content .header .toolbar .tb_but span img { margin: 1px 0px 0px 2px; }
+#page-content .header .toolbar .tb_but a.last img { margin-left: 2px; }
+#page-content .header .toolbar .tb_sep { width: 7px; height: 28px; background: url(images/tb_sep.png) 0 0 no-repeat; }
+#page-content .header .toolbar .tb_but span.disabled-but { display: block; width: 20px; height: 19px; margin: 4px 3px 0; text-decoration: none; background: #C3C3C3; border: 1px solid #98958E; }
+#page-content .header .toolbar .tb_but_text a {
+    font-size: 84.651%; line-height: 17px;
+    padding: 0 3px 0 0;
+    width: auto;
+    color: #6C6C6C;
+    background-color: #DEDEDE;
+}
+#page-content .header .toolbar a span { display: none; }
+#page-content .header .toolbar .tb_but_text a span { display: inline; visibility: visible; }
+#page-content .header .toolbar .tb_but_text a:hover { color: #222; background-color: #F9F8F4; }
+#page-content .header .toolbar .tb_but_text a img { vertical-align: bottom; margin-right: 3px; margin-top: -1px; }
+
+/* CSS3 */
+#page-content .header .toolbar .tb_but a {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+
+
+
+#page-footer {
+	color: #AAA;
+	font-size: 10px;
+	text-align: right;
+	width: 100%;
+	cursor: default;
+	margin: 0 auto;
+	width: 980px;
+}
+#page-footer a,
+#page-footer a:link,
+#page-footer a:hover
+#page-footer a:active { color: #AAA; text-decoration: none; }
+#page-footer a:hover { color: #909090; }
+
+
+/* .main { border:1px solid #C6BDA8; } */
+
+/*---------- MAIN -> HEADER --------------------*/
+/* -- Header general layout -- 
+.main .header { display: table; width: 100%; height: 28px; }
+.main .header .wrapper { display: table-row; }
+.main .header .title, 
+.main .header .status-box, 
+.main .header .toolbar-box { display: table-cell; width: 33%; vertical-align: middle; }
+*/
+
+
+
+/* -- Header Title -- 
+.main .header .title { 
+    padding: 2px 0 5px 10px; white-space: nowrap; 
+    font-family: "Trebuchet MS",Helvetica,sans-serif; font-size:18px; font-weight: bold; letter-spacing:1px;
+}
+*/
+
+
+/* -- Header Status box --*/
+.main .header .status-box { text-align: center; font-size: 13px; }
+.main .header .status-box div { line-height: 21px; color: #000; background-color: #fff; border: solid 1px #776C4E; white-space: nowrap; padding: 0 5px; }
+.main .header .status-box .save_done { background-color: #29BB15; color: #fff; }
+.main .header .status-box .not_valid { background-color: #FFFF66; color: #000; font-weight: bold; }
+
+
+/*---------- MAIN -> CONTENT --------------------*/
+.main .content { /*font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;*/ line-height: 1.3em; background-color: #FFF; color: #222;  overflow: hidden; padding: 10px; }
+.main .content h2,.main .content h3, .main .content h4 { margin-bottom: 15px; }
+
+p.error-msg code { font-weight: bold; }
+
+.content .note-content {  }
+.content .note-content p { margin-bottom: 0.8em;  }
+
+/* ---------- BiblioRef ---------- */
+.biblioref-item .title { font-style: italic; letter-spacing: 0.01em; }
+div.doctype_2 .title, div.doctype_4 .title { font-style: normal; letter-spacing: normal; }
+div.doctype_2 .book-title, div.doctype_4 .book-title { font-style: italic; letter-spacing: 0.01em; }
+
+.ui-widget-content .biblioref-item a { color: #03C; }
+
+.inline_doctype   { background-repeat: no-repeat; } 
+.inline_doctype_1 { background-image: url(images/doctype_book.png); }
+.inline_doctype_2 { background-image: url(images/doctype_bookItem.png); }
+.inline_doctype_3,
+.inline_doctype_4 { background-image: url(images/doctype_journalArticle.png); }
+.inline_doctype_5 { background-image: url(images/doctype_manuscript.png); }
+
+.ui-widget .inline_doctype_1 { background: url(images/doctype_book.png) no-repeat 0 0 !important; }
+.ui-widget .inline_doctype_2 { background: url(images/doctype_bookItem.png) no-repeat 0 0 !important; }
+.ui-widget .inline_doctype_3,
+.ui-widget .inline_doctype_4 { background: url(images/doctype_journalArticle.png) no-repeat 0 0 !important; }
+.ui-widget .inline_doctype_5 { background: url(images/doctype_manuscript.png) no-repeat 0 0 !important; }
+
+.ui-widget .inline_fiche_bio { background: url(images/user_silhouette.png) no-repeat 0 0 !important; }
+
+
+/*
+ * ========== DocumentFile List/edition =====================================
+ */
+.docfile {}
+
+.docfile .header { background-color: #E3DFD4; border-bottom: 1px solid #776C4E; padding: 5px 5px 5px; }
+.docfile .header .action-buttons { position: absolute; top: 7px; right: 5px; }
+.docfile .header .action-buttons a { color: #C00; text-decoration: none; }
+.docfile .header .action-buttons a:hover { text-decoration: underline; }
+
+.docfile .action-buttons { font-size: 11px; color: #C00; }
+
+
+.docfile h2, .docfile-list th { font-family: "Trebuchet MS",Helvetica,sans-serif; font-size: 16px; font-weight: bold; color: #776C4E; }
+
+.docfile-list { margin: 5px 0; border: 1px solid #C6BDA8; width: 100%; border-collapse: collapse; }
+.docfile-list th { background-color: #E3DFD4; font-size: 12px; border: 1px solid #C6BDA8; }
+.docfile-list td { border-right: 1px dotted #C6BDA8; padding: 2px 3px 2px 5px; }
+
+.docfile-list tr.row1 td { background-color: #FFFFFF; }
+.docfile-list tr.row2 td { background-color: transparent; }
+.docfile-list tr:hover td { background-color: #FED; }
+
+.docfile-list td.docfile-title a { display: block; }
+.docfile-list td.docfile-authorized-groups { font-size: 90%; cursor: default;  }
+.docfile-list td.action-buttons { width: 150px; }
+
+
+
+
+
+.docfile-form { margin: 5px 0; }
+.docfile-form li { list-style: none; margin: 5px 0 20px; clear:both; }
+.docfile-form li .docfile-title {  }
+.docfile-form li .docfile-authorized-groups {  }
+
+.docfile-form input { width: 380px; }
+.docfile-form label {
+	display:block; float:left; margin-right: 5px; padding-left: 5px;  width: 150px;
+	line-height:1.5em; color:#574C2E; font-size:9pt; font-weight:bold; background-color:#E3DFD4;
+}
+.docfile-form .docfile-current-file,
+.docfile-form .help-text { margin-left: 155px; }
+.docfile-form .help-text { font-size: 90%; color: #666; }
+
+.docfile-form .errorlist li { margin: 5px 0; padding: 0; color: #C00; }
+
+
+/*
+ * ==========  LOGIN PAGE ===========================================
+ */
+.login-body { margin-top: 30px; margin-bottom: 40px; }
+.login-body .aai_login_button { margin-top: 5px; }
+.main .content h2.aai { margin: 5px 0 5px 0; }
+
+
+
+.main .content .login-body h3 { margin-bottom: 2px; }
+
+.login-body .login-local-btn { margin: 30px 0; text-align: center; }
+.local-login-form form { margin: 10px 0 20px; }
+.local-login-form label { display: block; text-align: right; font-weight: 500; }
+/*.local-login-form label:after { content: " :"; }*/ /* This will cause an extra colon in the login form (ex. Nom d'utilisateur :: and Mot de passe :: ) */
+
+.local-login-form input[type=text],
+.local-login-form input[type=password]  { width: 100%; }
+
+.local-login-form .login-local-submit { text-align: right; margin-top: 10px; }
+
+
+.instruction strong { font-weight: 500; }
+
+/*
+ * ==========  FOOTER  ==============================================
+ */
+.footer { 
+	color:#C6BDA8;
+	font-size:12px;
+	text-align: center;
+	margin: 8px 0 0;
+ }
+ 
+ 
+.footer .vcard, .footer .vcard div { display: inline; } 
+ 
+
+
+
+/*
+ * ==========  LEFT-MENU Sizing  ====================================
+ */
+#left-menu { width: 180px; }
+
+
+
+
+/*
+ * ========== Messages =================================================
+ */
+ .message { margin: 5px 10px; padding: 5px; }
+
+ .message-info { border: solid 1px #E3DFD4; background-color: #FFF; }
+ .message-info:before { content:url(images/information.png); float: left; margin-right: 5px; }
+ 
+ .message-error { border: solid 1px #D33; background-color: #FFDFDF; }
+ .message-error:before { content:url(images/error.png); float: left; margin-right: 5px; }
+ 
+ .message-title { float: left; width: 60px; overflow: hidden;}
+ .message-error .error-list { margin-left: 90px; }
+ 
+ 
+ .loading { 
+    background: url("images/progress_bar_gray.gif") no-repeat scroll 0 0 transparent;
+    height: 20px; width: 220px; margin: 0 auto;
+}
+ 
+ 
+ /*
+  * ========== Tooltips =======================================================
+  */
+/*.tooltiplink { float: right; margin-right: 0.3em; margin-top: 0.1em; border: 0!important; background: transparent !important; }
+.tooltiplink a { cursor: help; }*/
+.tooltiplink a.tooltiplink {
+    float: right; 
+    display: block; 
+    padding: 4px; 
+    margin: -4px;
+    color: #F7F6F1 !important; 
+    background-color: #CCC; 
+    text-decoration: none;
+    text-shadow: none; 
+    cursor: help; 
+}
+.tooltiplink:hover { text-decoration: none !important; }
+
+.tooltip_content {
+	width: 250px; padding: 5px; cursor: default;
+	background: #FFA; border: solid 2px #DD6;
+	font-size: 11px; color: #222;
+} 
+
+.tooltip_content h1, .tooltip_content h2, .tooltip_content h3, .tooltip_content h4, .tooltip_content h5, .tooltip_content h6 {
+	font-size: 12px; font-weight: bold; text-decoration: none; 
+	margin-bottom: 2px; padding-bottom: 1px; border-bottom: solid 1px #000;
+}
+.tooltip_content p { margin-bottom: 0.5em; line-height: 1.1em; }
+.tooltip_content p:last-child { margin-bottom: 0; }
+
+.tooltip_content strong { font-weight: bold; font-size: 110%; }
+	  
+ /*
+  * ========== CKEditor Extension Buttons ================================
+  *
+  */
+ .x-cke_label_button .cke_icon { display: none !important; }
+ .x-cke_label_button .cke_label {
+  display: inline !important;
+  padding-left: 0 !important;
+}
+ 
+/*
+ * ========== Thumbnails view =================================================
+ * 
+ */
+.ia-row .ia-thumbnail { position: relative; cursor: pointer; }
+.ia-row .ia-thumbnail .cmd-box { position: absolute; top: 3px; right: 2px; }
+
+/*
+ * ========== Panel ===========================================================
+ * 
+ */
+.panel_box { -moz-border-radius: 3px 3px 3px 3px; -webkit-border-radius: 3px 3px 3px 3px; border-radius: 3px 3px 3px 3px; }
+.panel_box { -moz-box-shadow: 0px 1px 2px #8C8C8C; box-shadow: 0px 1px 2px #8C8C8C; }
+
+.panel_box {
+    background: none repeat scroll 0 0 #DFDFDF;
+    border: 1px solid #6C6C6C;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+.panel_box h4 { margin-bottom: 6px !important; color: #6C6C6C; font-size: 107.6923%; }
+.panel_box .panel_body { -moz-border-radius: 3px 3px 3px 3px; -webkit-border-radius: 3px 3px 3px 3px; border-radius: 3px 3px 3px 3px; }
+
+.panel_box .panel_body {
+    background-color: #FFFFFF;
+    border: solid 1px #C6BDA8;
+    border-top-color: #B2AA97;
+    border-bottom-color: #DAD0B9;
+    padding: 3px;
+}
+.panel_box .panel_body {
+    background-color: #FFFFFF;
+    border: solid 1px #BDBDBD;
+    border-top-color: #AAAAAA;
+    border-bottom-color: #D0D0D0;
+    padding: 3px;
+}
+
+
+
+.panel_box .panel_list { margin-bottom: 10px; }
+.panel_box .panel_list:last-child { margin-bottom: 0; }
+
+.panel_box .list_item { line-height: 1.2em; padding: 3px 3px; border: solid 1px transparent; position: relative;}
+.panel_box .list_item { -moz-border-radius: 2px; border-radius: 2px; }
+.panel_box .list_item:hover { background-color: #F2EFE5; }
+
+.panel_header { 
+    font-size: 84.615%; margin: -3px -3px 2px; padding: 3px 5px 2px;
+	border-bottom: solid 1px #E0E0E0;
+	background: #EFEFEF; 
+}
+.panel_header .panel_header_collapse { float: right; }
+
+.panel_paging { font-size: 84.615%; background-color: #DFDFDF; border-top: solid 1px #D0D0D0; margin: 2px -4px -4px; text-align: center; }
+.panel_paging .disabled { color: #8C8C8C; font-style: italic; }
+.panel_paging .current { font-weight: bold; font-size: 108.3333%; }
+
+/*
+ * ========== PROJET ==========================================================
+ */
+
+/* ========== List ===== */
+.project_item { border: solid 1px #8C8C8C; padding: 3px 5px; height: 130px; margin-bottom: 20px; position: relative; }
+
+.project_item .project_item_header { margin-bottom: 2px; padding-bottom: 4px; border-bottom: solid 1px #999;  }
+.project_item .project_item_header .cmd-box { position: absolute; top: 1px; right: 1px; }
+.project_item_header h1 { font-size: 16px; font-weight: bold;}
+.project_item_header h1 a { color: #222; display: block; }
+.project_item_header h1 a:hover { color: #922; }
+
+.project_item .thumbnail { width: 140px; float: left; margin-right: 10px; }
+.project_item .short_description { width: 295px; float: left; }
+
+.project_item .thumbnail,
+.project_item .short_description  { height: 105px; max-height: 105px; min-height: 105px; overflow: hidden; }
+
+.project_item .short_description .more-link { font-weight: 500; color: #0033CC; position: absolute; right: 5px; bottom: 5px; padding: 2px 0 0 6px; background: #FFF; }
+.project_item .short_description .more-link:hover { color: #990000; } 
+
+.project_item.unpublished { border-style: dashed; }
+.project_item.unpublished, .project_item.unpublished .short_description .more-link { background-color: #EAEAEA; }
+.project_item.unpublished, .project_item.unpublished h1 a { color: #666; font-style: italic; }
+
+
+#project_description .panel_body { padding: 5px; }
+
+/*
+ * ========== Notes ===========================================================
+ */
+.note-content { width: 600px; }
+.note-content sub {
+    font-size: smaller;
+    line-height: normal;
+    vertical-align: sub;
+}
+.note-content sup {
+    font-size: smaller;
+    line-height: normal;
+    vertical-align: super;
+}
+
+.note-content  ol {
+    display: block;
+    list-style-type: decimal;
+    margin: 1em 0;
+	padding-left: 40px;
+}
+
+.note-content ul {
+    display: block;
+    list-style-type: disc;
+    margin: 1em 0;
+    padding-left: 40px;
+}
+
+.note-content li {
+	list-style-position: outside;
+    display: list-item;
+}
+
+/*
+ * ========== Carousel ===========================================================
+ */
+ 
+.jcarousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.jcarousel a {
+	background-color: transparent !important;
+}
+
+
+.ia-panel .jcarousel a, .freecontent .jcarousel a {
+	padding: 0 !important;
+}
+
+.jcarousel ul {
+	width: 20000em;
+    position: absolute;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+	box-shadow: 0 1px 0 white;
+}
+
+.jcarousel li {
+    float: left;
+}
+
+.jcarousel .prev, .jcarousel .next {
+	width: 34px;
+	height: 53px;
+	position: absolute;
+	top: 50%;
+	cursor: pointer;	
+}
+
+.jcarousel .prev {
+	background: transparent url(../images/innovagency/arrow-prev.png) scroll no-repeat left 50%;
+	left: 0;
+	
+}
+
+.jcarousel .next {
+	background: transparent url(../images/innovagency/arrow-next.png) scroll no-repeat right 50%;
+	right: 0;
+
+}
+
+.jcarousel .legend {
+	background-color: rgba(0, 0, 0, 0.5);
+	text-shadow: none;
+	font-size: 10px;
+	color: white;
+	position: absolute;
+	bottom: 0;
+	padding: 5px 5px 7px 5px;
+	line-height: 1.1;
+}

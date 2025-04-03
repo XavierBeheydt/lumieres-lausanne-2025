@@ -1,0 +1,33 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+
+{% block head_meta %}<meta http-equiv="refresh" content="5; {% url 'lumieres-home' %}">{% endblock head_meta %}
+
+{% block main_header_title %}Logout{% endblock %}
+{% block main_header_toolbar %}{% endblock main_header_toolbar %}
+
+{% block main_content %}
+<div id="main-box" class="main">
+	<p>Vous avez été déconnecté de Lumières.Lausanne.</p>
+	<p>Vous serez redirigé vers la page d'accueil dans quelsques secondes: <a href="{% url 'lumieres-home' %}">Retour à la page d'accueil</a></p>
+</div>
+{% endblock main_content %}

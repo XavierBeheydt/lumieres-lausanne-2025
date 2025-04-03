@@ -1,0 +1,61 @@
+# MacOS
+.DS_Store
+
+# DB Data folder & DB dump
+/data
+/sql
+
+# Django Media folder
+/django/lumieres/media
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Virtual Environment
+.env
+.venv
+env/
+venv/
+
+# IDE/Editor
+.idea/
+.vscode/
+
+# Others
+*.ipynb_checkpoints
+.mypy_cache/

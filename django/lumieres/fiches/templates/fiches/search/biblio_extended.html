@@ -1,0 +1,570 @@
+{% extends "fiches/search/search_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load static %}
+{% load i18n fiches_extras pagination_tags %}
+{% block search_box %}{% endblock %}
+{% block head_css %}
+    {{ block.super }}
+	<link rel="stylesheet" href="{% static 'js/lib/jquery-ui-1.8/css/myui-important/jquery-ui-1.8.14.custom.css' %}">
+	<link rel="stylesheet" href="{% static 'css/960/960_24_col.css' %}">	
+{% endblock head_css %}
+
+{% block page_content_title %}<h1 class="ia">Recherche avancée</h1>{% endblock %}
+
+{% block main_header %}
+<div class="sub-navig ui-tabs">
+	<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header">
+		<li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a>Recherche bibliographique</a></li>
+		<li class="ui-state-default ui-corner-top"><a href="{% url 'list-person' %}">Liste des personnes</a></li>
+		<li class="ui-state-default ui-corner-top"><a href="{% url 'search-person' %}">Recherche biographique</a></li>
+	</ul>
+</div>
+{% if perms.fiches.change_any_transcription %}
+<div class="toolbar">
+	<div class="tb_but tb_but_text trans-access-change"><a href="?search_action=trans_access&{{ qs }}" title="Changer les accès aux transcriptions"><img src="{{ STATIC_URL }}css/images/world_edit.png" width="16" height="16" /><span>Changer accès trans.</span></a></div>
+	<div class="tb_right_cap"></div>
+</div>
+{% endif %}
+<div class="clear"></div>
+{% endblock %}
+
+{% block main_content %}
+    {{ block.super }}
+<div class="ext_search container_24">
+	<form action="" method="get" id="biblio_search">
+	
+	<div class="cmd_bar grid_24">
+		<div class="grid_18 alpha">
+			<span class="cmd_set">Grouper par: {{ form.grp }}</span>
+			<span class="cmd_set">Trier par: {{ form.sort }}</span>
+			<span class="cmd_set">Fiches par page: {{ form.nbi }}</span>
+		</div>
+        <div class="grid_6 omega" style="text-align: center">
+  			  <button type="reset">Effacer</button>&nbsp;
+  			  <span class="myui-important"><button type="submit"><strong>Chercher</strong></button></span>
+		</div>
+	</div>	
+
+	{#<!-- new search filters layout  -->#}
+	<div class="clear"></div>
+	<div class="search-filters">
+		<div class="cadre">
+			
+			{#<!-- text search in fields -->#}
+			<table class="fields-table fldset_row fldset_xfld"><tbody>
+				<tr><th>Avec les mots dans les champs</th></tr>
+				<tr><td>
+				
+					<div class="xfld_row">
+				        <div class="grid_2 alpha fld_op">&nbsp;</div>
+				        <div class="grid_5 fld_sel">
+							{{ form.x0_fld }}
+				        </div>
+				        <div class="grid_15 omega fld_val">
+				            {{ form.x0_val }}
+				        </div>
+				        <div class="clear"></div>
+			        </div>
+					
+		            <div class="xfld_row">
+			        	<div class="grid_2 alpha fld_op">
+			        		{{ form.x1_op }}
+			        	</div>
+			        	<div class="grid_5 fld_sel">
+			        		{{ form.x1_fld }}
+			        	</div>
+			        	<div class="grid_15 omega fld_val">
+			        	    {{ form.x1_val }}
+			        	</div>
+			        	<div class="clear"></div>
+			        </div>
+			        
+					<div class="supp-fields xfld_row {% if not form.data.x2_val %}hidden{% endif %}">
+				        <div class="grid_2 alpha fld_op">
+							{{ form.x2_op }}
+				        </div>
+				        <div class="grid_5 fld_sel">
+							{{ form.x2_fld }}
+				        </div>
+				        <div class="grid_15 omega fld_val">
+				            {{ form.x2_val }}
+				        </div>
+				        <div class="clear"></div>
+					</div>				
+			        
+					<div class="supp-fields xfld_row {% if not form.data.x3_val %}hidden{% endif %}">
+				        <div class="grid_2 alpha fld_op">
+							{{ form.x3_op }}
+				        </div>
+				        <div class="grid_5 fld_sel">
+							{{ form.x3_fld }}
+				        </div>
+				        <div class="grid_15 omega fld_val">
+				            {{ form.x3_val }}
+				        </div>
+				        <div class="clear"></div>
+					</div>				
+		
+					<div class="more-field"></div>
+					
+				</td></tr>
+			</tbody></table>
+			
+			{#<!-- doc type, journal, lang, lit. type and manuscript type fields -->#}
+			<table class="fields-table fldset_row">
+			<col width="40">
+			<col width="15">
+			<col width="15">
+			<col width="15">
+			<col width="15">
+			<tbody>
+				<tr>
+					<th>Type de document</th>
+					<th>Revue</th>
+					<th>Type de littérature</th>
+					<th>Type de manuscrit</th>
+					<th>Lieu de dépôt</th>
+				</tr>
+				<tr>
+					<td class="fldset_doctype">
+						<div class="float-col">
+							{{ form.dt }}
+							<ul>
+								<li><label for="id_dt_4bis" title="Uniquement les manuscrits avec transcription"><input type="checkbox" id="id_dt_4bis" value="1" name="dtT" {% if onlyTrans %}checked{% endif %}>Transcription seul.</label></li>
+							</ul>
+						</div>
+					</td>
+					
+					<td class="fldset_journal">
+						<div class="float-col">
+						{{ form.journal }}
+						</div>
+					</td>
+					
+			        <td class="fldset_ltype">{{ form.ltype }}</td>
+					
+			        <td class="fldset_mtype">{{ form.mtype }}</td>
+
+			        <td class="fldset_depot">{{ form.depot }}</td>
+					
+				</tr>
+			</tbody>
+			</table>
+			
+			{#<!-- keywords and society/academy fields -->#}
+			<table class="fields-table fldset_row">
+			<col width="80">
+			<col width="20">
+			<tbody>
+				<tr>
+					<th>Avec les mots-clés</th>
+					<th>Société/Académie</th>
+				</tr>
+				<tr>
+		            <td>
+						<div class="kwrds fldset_kwrds">		            
+							<div class="kwrds_row">
+			                    <div class="grid_2 alpha kw_op">{{ form.kw0_op }}</div>
+								<div class="grid_5 pkw_val">
+									{{ form.kw0_p }}
+								</div>
+								<div class="grid_8 skw_val">
+									<select class="skw" name="kw0_s" disabled="true" {% if form.kw0_s.value %}datasrc="{{ form.kw0_s.value }}"{% endif %}>
+										<option value="">&lt;  mot-clé secondaire  &gt;</option>
+									</select>
+								</div>
+								<div class="clear"></div>
+				        	</div>
+							
+							<div class="kwrds_row supp-fields {% if not form.data.kw1_p %}hidden{% endif %}">
+								<div class="grid_2 alpha kw_op">{{ form.kw1_op }}</div>
+								<div class="grid_5 pkw_val">
+									{{ form.kw1_p }}
+								</div>
+								<div class="grid_8 skw_val">
+									<select class="skw" name="kw1_s" disabled="true" {% if form.kw1_s.value %}datasrc="{{ form.kw1_s.value }}"{% endif %}>
+										<option value="">&lt;  mot-clé secondaire  &gt;</option>
+									</select>
+								</div>
+								<div class="clear"></div>
+							</div>
+			
+							<div class="kwrds_row supp-fields {% if not form.data.kw2_p %}hidden{% endif %}">
+								<div class="grid_2 alpha kw_op">{{ form.kw2_op }}</div>
+								<div class="grid_5 pkw_val">
+									{{ form.kw2_p }}
+								</div>
+								<div class="grid_8 skw_val">
+									<select class="skw" name="kw2_s" disabled="true" {% if form.kw2_s.value %}datasrc="{{ form.kw2_s.value }}"{% endif %}>
+										<option value="">&lt;  mot-clé secondaire  &gt;</option>
+									</select>
+								</div>
+								<div class="clear"></div>
+				        	</div>
+			
+							<div class="kwrds_row supp-fields {% if not form.data.kw3_p %}hidden{% endif %}">
+								<div class="grid_2 alpha kw_op">{{ form.kw3_op }}</div>
+								<div class="grid_5 pkw_val">
+									{{ form.kw3_p }}
+								</div>
+								<div class="grid_8 skw_val">
+									<select class="skw" name="kw3_s" disabled="true" {% if form.kw3_s.value %}datasrc="{{ form.kw3_s.value }}"{% endif %}>
+										<option value="">&lt;  mot-clé secondaire  &gt;</option>
+									</select>
+								</div>
+								<div class="clear"></div>
+							</div>
+			
+							<div class="more-field"></div>
+						</div>
+					</td>
+					
+					<td class="fldset_society">{{ form.society }}</td>
+					
+				</tr>
+			</tbody>
+			</table>
+
+			{#<!-- publication and modification dates -->#}
+			<table class="fields-table fldset_row">
+			<tbody>
+				<tr>
+					<th>Date de parution</th>
+					<th>Date d'enregistrement</th>
+					<th>Langue</th>
+				</tr>
+				<tr>
+			        <td class="fldset_date">
+	                    {% spaceless %}<div>
+	                    	<span>de&nbsp;</span>
+	                    	<span {% if form.date_from.errors %}class='field_error' title='{{ form.date_from.errors|join:", " }}'{% endif %}>{{ form.date_from }}</span>
+							<span>&nbsp;&agrave;&nbsp;</span>
+							<span {% if form.date_to.errors %}class="field_error" title="{{ form.date_to.errors|join:", " }}"{% endif %}>{{ form.date_to }}</span>
+						</div>{% endspaceless %}
+			        </td>
+
+			        <td class="fldset_mdate">
+	                    {% spaceless %}<div>
+	                    	<span>de&nbsp;</span>
+	                    	<span {% if form.mdate_from.errors %}class='field_error' title='{{ form.mdate_from.errors|join:", " }}'{% endif %}>{{ form.mdate_from }}</span>
+							<span>&nbsp;&agrave;&nbsp;</span>
+							<span {% if form.mdate_to.errors %}class="field_error" title="{{ form.mdate_to.errors|join:", " }}"{% endif %}>{{ form.mdate_to }}</span>
+						</div>{% endspaceless %}
+			        </td>
+			        
+			        <td class="fldset_language">{{ form.l }}</td>
+					
+				</tr>
+			</tbody>
+			</table>
+			
+			{#<!-- projects -->#}
+			<table class="fields-table fldset_row">
+			<tbody>
+				<tr>
+					<th>Projets {{ form.proj_op }}</th>
+				</tr>
+				<tr>
+					<td class="fldset_proj">
+						<div class="float-col">{{ form.proj }}</div>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			
+			<span class="ui-state-default collapse_btn"></span>
+            {% if form.cl1.value == "1" %}{{ form.cl1 }}{% else %}{% if page.object_list %}<input type="hidden" name="cl1" value="1" class="collapse_status" />{% endif %}{% endif %}
+		</div>
+	</div>
+
+{#<!--  ========== RESULTS ==========  -->#}
+{% if page %}{% with paginator.count as nb_val %}
+<div class="ext-results container_24">
+	
+    {% if page.object_list %}
+    <div class="results-header grid_24">
+        <div class="ext-results-nbitem grid_4 alpha">{{ nb_val }} fiche{{ nb_val|pluralize }} trouvée{{ nb_val|pluralize }}</div>
+        {% spaceless %}<div class="results-paging ext-results-paging grid_16 omega">{% with page_obj=page %}{% paginate %}{% endwith %}</div>{% endspaceless %}
+	</div>
+	{% endif %}
+	
+	<div class="clear"></div>
+	
+	<div class="ext-results-body grid_24">
+	{% if not page.object_list %}
+	
+		<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			Pas de résultat pour cette recherche</p>
+		</div>
+		
+	{% else %}
+
+		{% if grpby_1 == "doctype" %}
+		    {% regroup page.object_list by document_type as grouped_results %}
+		{% else %}{% if grpby_1 == "author" %}
+		    {% regroup page.object_list by first_author_name|default:"[sans auteur]" as grouped_results %}		
+		{% endif %}{% endif %}
+
+		<ul class="results-group-list">
+		{% for results in grouped_results %}
+			<li class='{% if grpby_1 == "doctype" %}doctype doctype_{{ results.list.0.document_type.id }}{% endif %}'>
+				<span class="grouper grouper_1">{{ results.grouper }}</span>
+				<ul class="results-subgroup-list"> {#class="results-item-list">#}
+	              {% if grpby_2 == "doctype" %}
+	                  {% regroup results.list by document_type as grouped_results_2 %}
+	              {% else %}{% if grpby_2 == "author" %}
+	                  {% regroup results.list by first_author_name|default:""|make_list|first as grouped_results_2 %}
+	              {% endif %}{% endif %}
+				  
+				  {% for results2 in grouped_results_2 %}
+				    <li class='{% if grpby_2 == "doctype" %}doctype doctype_{{ results2.list.0.document_type.id }}{% else %}{% if grpby_2 == "author" %}author{% endif %}{% endif %}'>
+				  	    <span class="grouper grouper_2">{{ results2.grouper|default:"*" }}</span>
+						<ul class="results-item-list">
+		                   {% for result2 in results2.list %}
+		                   <li>
+		                      {% include "fiches/bibliography_references/biblio_template.html" with ref=result2 link_target="search_result" %}
+		                   </li>
+		                   {% endfor %}
+						</ul>
+					</li>
+				  {% endfor %}
+				  				  
+			    </ul>
+			</li>
+		{% empty %}
+			<li>
+				<ul class="results-subgroup-list">
+					<li>
+						<ul class="results-item-list">
+						{% for res in page.object_list %}
+				           <li>
+				              {% include "fiches/bibliography_references/biblio_template.html" with ref=res link_target="search_result" %}
+				           </li>
+						{% endfor %}
+						</ul>
+					</li>
+				</ul>
+			</li>
+		{% endfor %}
+		</ul>
+			
+	{% endif %} {# not page.object_list #}
+	</div>
+	
+	<div class="clear"></div>
+	
+	{% if page.object_list %}
+	<div class="results-footer grid_24">
+		<div class="ext-results-nbitem grid_4 alpha">{{ nb_val }} fiche{{ nb_val|pluralize }} trouvée{{ nb_val|pluralize }}</div>
+        {% spaceless %}<div class="results-paging ext-results-paging grid_16 omega">{% with page_obj=page %}{% paginate %}{% endwith %}</div>{% endspaceless %}
+	</div>
+	{% endif %}
+	
+</div>
+{% endwith %}
+{% endif %}
+
+<script type="text/javascript">
+(function($){
+    $(document).ready(function(){
+		// On Submit Form, remove field with no value, so the url is not polluted with empty values
+		$("#biblio_search").submit(function(){
+			
+			$("#biblio_search .fldset_xfld .xfld_row").each(function(i,n){
+			    var $this = $(this), v = $this.find("input[name$=_val]").val();
+			    if (!v) {
+			        $this.find("[name$=_op], [name$=_fld], [name$=_val]").removeAttr("name");
+			    }
+			});
+
+            $("#biblio_search .fldset_kwrds .kwrds_row").each(function(i,n){
+                var $this = $(this), 
+				    v = $this.find(".pkw_val select").val();
+                if (!v) {
+                    $this.find("[name^=kw]").removeAttr("name");
+                } else {
+					var skw = $this.find("[name$=_s]");
+					if (!skw.val()) { skw.removeAttr("name"); }
+				}
+            });
+			
+			$("#id_mdate_from, #id_mdate_to, #id_date_from, #id_date_to, #id_l").each(function(i,n){
+			    var $this = $(this);
+			    if (!$this.val()) { $this.removeAttr("name"); }
+			});
+			
+			if ($("#biblio_search [name=ltype]:checked").val() == '__') { $("#biblio_search [name=ltype]").removeAttr("name"); }
+			if ($("#biblio_search [name=proj]:checked").length == 0) { $("#id_proj_op").removeAttr("name"); }
+			if ($("#biblio_search [name=journal]").val() == '') { $("#biblio_search [name=journal]").removeAttr("name"); }
+			if ($("#biblio_search [name=society]").val() == '') { $("#biblio_search [name=society]").removeAttr("name"); }			
+			if ($("#biblio_search [name=mtype]").val() == '') { $("#biblio_search [name=mtype]").removeAttr("name"); }			
+			
+			return true;
+		});
+		
+		
+		// Submit & reset button
+		$(".cmd_bar button[type=submit]").button({icons: {primary: "ui-icon-search"}});
+		$(".cmd_bar button[type=reset]").click(function(){document.location=".";}).button({icons: {primary: "ui-icon-close"}});
+		
+		
+        // Display Additional fields
+        $(".more-field").each(function(){
+			$(this).append(
+			  $("<button>",{'type':"button", 'text':"Plus de champs", 'title':"Afficher plus de champs"})
+	            .css("font-size", "9px")
+	            .button({icons: {primary: "ui-icon-plusthick"}, text: false})
+	            .click(function(evt){
+	                var $this= $(evt.target), ctxt = $this.parents("td").eq(0); 
+	                $(".supp-fields.hidden", ctxt).eq(0).hide().removeClass("hidden").slideDown('fast');
+	                if ($(".supp-fields.hidden", ctxt).length==0) { $this.parents(".more-field").eq(0).remove(); }
+	          })
+			);
+		});
+		
+		
+		// Collapse fieldset button 2
+		var savedSearchFiltersHeight = 300;
+		$(".collapse_btn")
+		    .append('<span class="ui-icon ui-icon-triangle-1-n"></span>')
+		    .addClass("ui-state-default")
+		    .hover(
+			     function(){ $(this).removeClass("ui-state-default").addClass("ui-state-hover"); }, 
+				 function(){ $(this).removeClass("ui-state-hover").addClass("ui-state-default"); }
+			)
+			.click(function(){
+				var $this = $(this), $block = $this.parents(".search-filters").eq(0),
+					$cdr = $block.find(".cadre"), $fldset = $block.find("fieldset"),
+					$collapse_status = $block.find("input.collapse_status");
+				if ($cdr.hasClass('collapsed')) {
+					$cdr.removeClass('collapsed');
+					$collapse_status.remove();
+					$cdr.animate({'height': savedSearchFiltersHeight + 'px'}, 'fast', function(){
+						$cdr.css('height', '');
+						$('.fldset_xfld th', $cdr).html('Avec les mots dans les champs');
+					});
+					$this.find(".ui-icon").addClass("ui-icon-triangle-1-n").removeClass("ui-icon-triangle-1-s");
+				} else {
+					if ($collapse_status.length > 0) {
+						$collapse_status.val("1");
+					} else {
+					   $cdr.append($("<input/>", {'type': "hidden", 'id': "id_cl1", 'name': "cl1", 'value': "1"}));
+					}
+					savedSearchFiltersHeight = $cdr.height();
+					$cdr.animate({'height': '15px'}, 'fast', function(){ 
+						$cdr.addClass('collapsed');
+						$('.fldset_xfld th', $cdr).html('Modifier la recherche avancée');
+					});
+					$this.find(".ui-icon").addClass("ui-icon-triangle-1-s").removeClass("ui-icon-triangle-1-n");
+				}
+				
+			});
+	   	
+		// Collapse rows where the the collapse_status is set to 1
+		$(".search-filters:has(.collapse_btn)").each(function(){
+            if ($(this).find("input.collapse_status").val()) { 
+			    var oldFxOff = $.fx.off;
+				$.fx.off = true
+				$(this).find(".collapse_btn").click();
+				$.fx.off = oldFxOff; 
+			}
+		});
+
+
+        // Field errors reset on change
+		$(".field_error input").focus(function(){
+		    $(this).parent(".field_error").removeClass("field_error");
+		});
+
+
+		// Keywords handling
+		var skw_empty_item_tpl = ['<  mot-clé secondaire  >', '<  mot-clé secondaire de "%s"  >'];
+		function updateSecKwrds(pkw_elem, skw_val){
+			var $pkw = $(pkw_elem), $skw = $pkw.parent().next().find("select.skw"),
+				pk_id = parseInt($pkw.val());
+			if (isNaN(pk_id) || pk_id<=0 ) {
+				$skw.val("").prop("disabled", true);
+				$skw.find("option[value='']").text(skw_empty_item_tpl[0]);
+			} else {
+				if ($skw.attr("datasrc")) {
+					skw_val = parseInt($skw.attr("datasrc"));
+					$skw.removeAttr("datasrc");
+				}
+				$.get("{% url 'ajax-search' %}", 
+					{ model_name: "SecondaryKeyword", q: pk_id, search_field: "=primary_keyword__id" },
+					function(data){
+						var data_array = data.split("\n"), idx=0, data_rec=[], opt_elem;
+						$skw.find("option[value!='']").remove();
+						for (idx=0; idx<data_array.length; idx++){
+							data_rec = data_array[idx].split("|");
+							if (data_rec && data_rec[1]) {
+								opt_elem = $("<option>",{text: data_rec[0], value: data_rec[1]});
+								if (skw_val && skw_val == data_rec[1]) { opt_elem.attr("selected", "selected"); }
+								$skw.append(opt_elem);
+							}
+						}
+						$skw.find("option[value='']").text(skw_empty_item_tpl[1].replace('%s', $pkw.find(":selected").text()));
+						$skw.prop("disabled", false);
+					}
+				);
+			}
+		}
+
+		$(".kwrds select.pkw").change(function(){
+			updateSecKwrds(this);
+		}).change();
+		
+    });
+})(jQuery);
+</script>
+{% if user.is_authenticated and display_collector %}
+<style type="text/css">
+    .collector-list-add-button { float:left; margin: 1px 0 0 -20px; cursor: pointer; visibility: hidden; }
+    li:hover > .collector-list-add-button { visibility: visible; }
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){ 
+        $('<div>', {
+            "class": 'collector-list-add-button',
+            "title": 'Ajouter à une collection',
+            "click": function() {
+                var $a = $(this).parent().find("a.collectable").eq(0),
+                    a_id = $a.attr('id');
+                try {
+                    collector.addObj_open({
+                        item_title: $a.text(),
+                        item_id: a_id.split('__')[1],
+                        item_type: a_id.split('__')[0]
+                    });
+                } catch(e) {
+                    return false;
+                }
+                return false;   
+            }
+        }).prependTo($(".results-item-list li:has(a.collectable)"));
+    });
+</script>
+{% endif %}
+
+
+{% endblock main_content %}

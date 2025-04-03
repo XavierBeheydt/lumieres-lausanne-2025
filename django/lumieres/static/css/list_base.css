@@ -1,0 +1,42 @@
+body { padding: 0 0 0 0 !important;  }
+.item-list { padding-right: 5px; }
+.item-list ol li { list-style: decimal-leading-zero inside; }
+
+.item-list ul li li { padding: 3px 0 4px 20px; font-size: 11pt; line-height: 1.1em; }
+.item-list ul li .group-head { border-bottom: solid 2px #C6BDA8; margin: 10px 0 5px; }
+.item-list ul li .group-head a { display: block; width: 40px; color: #FFF; font-size: 13px; font-weight: bold; text-align: center; text-decoration: none; background-color: #C6BDA8; padding: 2px 3px; }
+
+
+#group-navig { height: 13px; position: fixed; top: 0; left: 0; width: 100%; font-size: 10px; background-color: #C6BDA8; text-align: center;  }
+#group-navig a { margin: 0 3px; padding: 0 2px; line-height: 13px; background-color: #C6BDA8; color: #FFF; }
+#group-navig a:hover { background-color: #776C4E; text-decoration: none; }
+
+.paginator { height: 16px; line-height: 16px; padding-left: 10px; background-color: #C6BDA8; text-align: center; color: #fff; white-space:nowrap; }
+.pagination a { color: #fff; padding: 0 2px; }
+.pagination a:hover { background-color: #776C4E; text-decoration: none;  }
+.pagination .current {
+	background-color: #F7F6F1;
+	border: solid 1px #E3DFD4;
+	color: #776C4E;
+	font-weight: bold;
+	padding: 0 2px;
+}
+.pagination .disabled { display: none; color: #776C4E; }
+
+
+.biblioref-list ul li li { background: url(images/doctype_.png) 3px 6px no-repeat; position: relative; padding: 5px 5px 5px 20px; border: 1px solid transparent; border-left-width: 0; }
+.biblioref-list ul li li:hover { background-color: #F0EEE7; border-color: #D7D0BE; }
+.biblioref-list ul li li.doctype_1 { background-image: url(images/doctype_book.png); }
+.biblioref-list ul li li.doctype_2 { background-image: url(images/doctype_bookItem.png); }
+.biblioref-list ul li li.doctype_3,
+.biblioref-list ul li li.doctype_4 { background-image: url(images/doctype_journalArticle.png); }
+.biblioref-list ul li li.doctype_5 { background-image: url(images/doctype_manuscript.png); }
+
+.biblioref-list .biblioref-item { display: block; padding-left: 5px; line-height: 1.25em; }
+
+
+.biblioref-item .man-biblio-link { color: #0033CC; font-size: 84.6153%; white-space: nowrap; }
+.biblioref-item .man-biblio-link:hover { color: #900; }
+/*.biblioref-item .man-biblio-link a { color: #222; }
+.biblioref-item .man-biblio-link a:hover { color: #900; }*/
+
