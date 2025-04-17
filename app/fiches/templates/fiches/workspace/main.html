@@ -1,0 +1,290 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load static %}
+
+{% block main_header_title %}
+    Espace de travail de {{ user.get_full_name|default:user }}
+{% endblock main_header_title %}
+
+{% block head_css %}
+    {{ block.super }}
+    <link rel="stylesheet" media="all" charset="utf-8" href="{% static 'css/collection.css' %}" />
+
+    <style>
+        /* Existing CSS styles */
+        #workspace_container .ui-tabs .ui-tabs-panel { padding-left: 0.5em; padding-right: 0.5em; }
+    
+        #workspace-tabs { font-size: 12px; }
+        #workspace-tabs p { margin-bottom: 7px; }
+        #workspace-tabs dt { font-weight: bold; font-size: 13px; margin-bottom: 5px; }
+        #workspace-tabs dd { padding-left: 10px; margin-bottom: 20px; }
+    
+        #id-bio_person_list .bio_person_list_container { max-height: 300px; width: 450px; overflow: auto; padding: 3px; border: solid 1px #8c8c8c; }
+        #id-bio_person_list .bio_person_list_container { background-color: #F0F0F0; }
+        #id-bio_person_list .bio_person_list_container .loader { 
+            height: 30px; 
+            background: transparent url("{% static 'css/images/progress_bar_ltgray-gray.gif' %}") no-repeat 50% 50%; 
+        }
+    
+        #tabs-biovalidation-content .biography-tobevalidated-list {}
+        #tabs-biovalidation-content .biography-tobevalidated-list li { padding: 0.2em 0; }
+        #tabs-biovalidation-content .biography-tobevalidated-list li a,
+        #tabs-biovalidation-content .biography-tobevalidated-list li a:link   { color: #0033CC; text-decoration: none; }
+        #tabs-biovalidation-content .biography-tobevalidated-list li a:hover  { color: #990000; text-decoration: underline; }
+        #tabs-biovalidation-content .biography-tobevalidated-list li a:active { color: #FF0000; }
+    
+        #tabs-activities-content th, #tabs-activities-content td {
+            border: solid 1px #aaa;
+            padding: 2px 5px;
+            text-align: left;
+        }
+        #tabs-activities-content thead tr { background-color: black; color: white; }
+        #tabs-activities-content tr:nth-child(even) { background-color: #eee; }
+    
+        #workspace-tabs .tabs-collection { }
+    </style>
+    
+{% endblock head_css %}
+
+{% block main_content %}
+<div id="workspace_container">
+
+    <div id="workspace-tabs">
+        <ul>
+            {% if perms.fiches.add_biblio %}
+                <li id="id-tab-createfiche">
+                    <a href="#tabs-create">Création de fiches</a>
+                </li>
+            {% endif %}
+            <li id="id-tab-collection">
+                <a href="#tabs-collection">Gestion des Collections</a>
+            </li>
+            {% if user.is_staff %}
+                <li id="id-tab-admin-site">
+                    <a id="id-link-admin-site" href="{% url 'fiches_admin:index' %}">Interface d'administration</a>
+                </li>
+            {% endif %}
+            {% if perms.fiches.validate_biography %}
+                <li id="id-tab-biographies">
+                    <a href="{% url 'biography-need-validation-list' %}">Biographies à valider</a>
+                </li>
+            {% endif %}
+            {% if perms.fiches.change_activitylog %}
+                <li id="id-tab-activities">
+                    <a href="{% url 'last-activities-list' %}">Derniers enregistrements</a>
+                </li>
+            {% endif %}
+            {% if not user.profile.shib_uniqueID %}
+                <li id="id-tab-change-password">
+                    <a href="#tabs-change-password-content">Changer de mot de passe</a>
+                </li>
+            {% endif %}
+        </ul>
+
+        {% if perms.fiches.add_biblio %}
+            <div id="tabs-create">
+                <dl>
+                    <dt>Créer une fiche bibliographique</dt>
+                    <dd>
+                        <p>Avant de créer une fiche bibliographieque, <strong>veuillez vous assurer qu'elle n'existe pas déjà</strong> sur la base de données.</p>
+                        <p>La référence bibliographique que vous introduisez doit avoir un lien avec le XVIII<sup>e</sup> siècle ET l’espace géographique délimité par les frontières suisses actuelles.</p>
+                        <p>Avant de remplir une fiche, il est indispensable de consulter les <strong>Consignes d’utilisation – Fiches bibliographiques</strong> ci-dessous. Pour ajouter une nouvelle transcription, merci de vous référer aux <strong>Consignes d’utilisation – Transcription</strong>.</p>
+                        <p>Si vous souhaitez ajouter plusieurs fiches bibliographiques ou fiches de transcription en dehors d’un « projet Lumières.Lausanne », merci de prendre contact avant de commencer avec les responsables de la base pour obtenir leur accord (<a href="mailto:lumieres.lausanne@unil.ch">lumieres.lausanne@unil.ch</a>).</p>
+                        <p>Choisissez la catégorie de fiche:</p>
+                        {% spaceless %}
+                            <span id="id-create_biblio_doctype" rel="{% url 'bibliography-create' %}">
+                                <button type="button" value="1">Livre</button>
+                                <button type="button" value="2">Chapitre de livre</button>
+                                <button type="button" value="3">Article de revue</button>
+                                <button type="button" value="4">Article de dictionnaire</button>
+                                <button type="button" value="5">Manuscrit</button>
+                            </span>
+                        {% endspaceless %}
+                    </dd>
+
+                    {% if perms.fiches.add_biography %}
+                        <dt>Créer une fiche biographique</dt>
+                        <dd>
+                            <p>Avant de créer ou modifier une fiche biographique, veuillez consulter les <strong>Consignes d’utilisation – Fiches biographiques</strong> ci-dessous.</p>
+                            <div id="id-bio_person_list">
+                                <button type="button">Charger la liste des personnes</button>
+                                <div class="bio_person_list_container" style="display:none;">
+                                    <div class="loader"></div>
+                                </div>
+                            </div>
+                        </dd>
+                    {% endif %}
+
+                    <dt>Consignes d'utilisation</dt>
+                    <dd>
+                        <ul>
+                            {% for doc in instructions.documents.all %}
+                                <li>
+                                    <a class="external" href="{{ doc.file.url }}" target="_blank">
+                                        <span class="docfile_type_icon docfile_type_pdf"></span>{{ doc.title|default:doc.file.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+        {% endif %}
+
+        <div id="tabs-collection"></div>
+
+        {% if not user.profile.shib_uniqueID %}
+            <div id="tabs-change-password-content">
+                {% if form %}
+                    <form action="{% url 'change-password-page' %}" method="post">
+                        {% csrf_token %}
+                        <div>
+                            {% if form.errors %}
+                                <p class="errornote">
+                                    {% blocktrans count counter=form.errors.items|length %}
+                                        Please correct the error below.
+                                    {% plural %}
+                                        Please correct the errors below.
+                                    {% endblocktrans %}
+                                </p>
+                            {% endif %}
+
+                            <h1>{% trans 'Password change' %}</h1>
+
+                            <p>{% trans "Please enter your old password, for security's sake, and then enter your new password twice so we can verify you typed it in correctly." %}</p>
+
+                            <fieldset class="module aligned wide" style="margin-top: 20px;">
+                                <div class="form-row">
+                                    {{ form.old_password.errors }}
+                                    <label for="id_old_password" class="required" style="width: 170px; float: left;">{% trans 'Old password' %}:</label>{{ form.old_password }}
+                                </div>
+
+                                <div class="form-row">
+                                    {{ form.new_password1.errors }}
+                                    <label for="id_new_password1" class="required" style="width: 170px; float: left;">{% trans 'New password' %}:</label>{{ form.new_password1 }}
+                                </div>
+
+                                <div class="form-row">
+                                    {{ form.new_password2.errors }}
+                                    <label for="id_new_password2" class="required" style="width: 170px; float: left;">{% trans 'Password (again)' %}:</label>{{ form.new_password2 }}
+                                </div>
+                            </fieldset>
+
+                            <div class="submit-row" style="margin-top:20px;">
+                                <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false">
+                                    <span class="ui-button-text">{% trans 'Change my password' %}</span>
+                                </button>
+                            </div>
+
+                            <script type="text/javascript">
+                                document.getElementById("id_old_password").focus();
+                            </script>
+                        </div>
+                    </form>
+                {% else %}
+                    <h1>{% trans 'Password change successful' %}</h1>
+                    <p>{% trans 'Your password was changed.' %}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+<script type="text/javascript">
+    (function($){
+        $(document).ready(function(){
+            {% if selected_tab_id %}
+                var selected_tab = $('#id-tab-{{ selected_tab_id|default:"_____" }}').index();
+            {% else %}
+                var selected_tab = (/change_password/.test(window.location.pathname)) 
+                    ? $('#id-tab-change-password').index() 
+                    : -1;
+            {% endif %}
+            selected_tab = (selected_tab < 0) ? $('#id-tab-collection').index() : selected_tab;
+    
+            $("#workspace-tabs").tabs({
+    // set which tab is active
+    active: selected_tab,
+
+    // 1) On creation, check if the active tab is the “Collections” tab
+    create: function (event, ui) {
+        var activeIndex = $("#workspace-tabs").tabs("option", "active");
+        var collectionsIndex = $("#id-tab-collection").index();
+        if (activeIndex === collectionsIndex) {
+            // If “Gestion des Collections” is the default tab, load it
+            $("#tabs-collection")
+                .html("<p>Loading collections...</p>")
+                .load("/espace_de_travail/collections/");
+        }
+    },
+
+    // 2) On tab switch, check if user clicked “Collections”
+    activate: function (event, ui) {
+        // If they clicked “Gestion des Collections” after the page loaded
+        if (ui.newTab.attr("id") === "id-tab-collection") {
+            $("#tabs-collection")
+                .html("<p>Loading collections...</p>")
+                .load("/espace_de_travail/collections/");
+        }
+
+        // If they clicked “Interface d'administration,” redirect
+        if (ui.newTab.attr("id") === "id-link-admin-site") {
+            window.location = "/fiches_admin/";
+        }
+    }
+});
+
+
+    
+            // Existing logic for the “Créer une fiche bibliographique” buttons
+            $("#id-create_biblio_doctype")
+                .find("button").each(function(){
+                    var $b = $(this);
+                    $b
+                        .click(function(){
+                            document.location = $("#id-create_biblio_doctype").attr("rel") + "type_" + $(this).val() + "/";
+                        })
+                        .button({icons:{primary: "inline_doctype_" + $b.val()}});
+                })
+                .end()
+                .buttonset();
+    
+            // Existing logic for “Charger la liste des personnes” button
+            $("#id-bio_person_list > button")
+                .click(function(){
+                    $("#id-bio_person_list .bio_person_list_container")
+                        .show()
+                        .load('{% url 'persons-for-new-biography' %}');
+                    $(this).remove();
+                })
+                .button();
+
+                if ($(".toolbar-box .toolbar div").not(".tb_right_cap").length === 0) {
+                    $(".toolbar-box").remove();
+                }
+        });
+    })(jQuery);
+    </script>
+    
+{% endblock main_content %}

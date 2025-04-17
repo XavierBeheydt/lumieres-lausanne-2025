@@ -1,0 +1,63 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+<div class="collection-details">
+	<h2>{{ coll.name }}</h2>
+	<p class="description">{{ coll.description }}</p>
+	
+	<div>
+		<h4>Accès</h4>
+		<p>Public:  {{ coll.access_public|yesno:"Oui,Non" }}</p>
+		<p>Groupes: {{ coll.access_groups.all|join:", "|default:"Aucun" }}</p>
+	</div>
+	<br/>
+	<div>
+		<h4>Liste des éléments</h4>
+		<dl class="collection-element-list">
+			{% with coll.persons.all as persons %}{% if persons %}
+			<dt>Biographies</dt>
+			<dd><ul>
+				{% for p in persons %}
+					<li>{{ p.get_biography.person_name }}</li>
+				{% endfor %}
+			</ul></dd>
+			{% endif %}{% endwith %}
+			
+			{% with coll.bibliographies.all as bibliographies %}{% if bibliographies %}
+			<dt rel="Bibliographie">Bibliographies</dt>
+			<dd><ul>
+				{% for b in bibliographies %}
+					<li>{{ b }}</li>
+				{% endfor %}
+			</ul></dd>
+			{% endif %}{% endwith %}
+			
+			{% with coll.manuscripts.all as manuscripts %}{% if manuscripts %}
+			<dt>Manuscrits</dt>
+			<dd><ul>
+				{% for m in manuscripts %}
+					<li>{{ m }}</li>
+				{% endfor %}
+			</ul></dd>
+			{% endif %}{% endwith %}
+			
+		</dl>
+	</div>
+</div>

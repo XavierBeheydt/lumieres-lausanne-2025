@@ -1,0 +1,160 @@
+{% extends "fiches/display/display_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n fiches_extras %}
+
+{% block head_css %}
+    {{ block.super }}
+	<link rel="stylesheet" href="{% static 'css/project_description.css' %}" media="all" charset="utf-8" />
+    <style media="all">
+        .project_main { font: 12pt/1.2 "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", Times, serif; color: #000; }
+        .project_main h3 { font-size: 16pt; text-decoration: underline; } 
+        .project_main h4 { font-size: 14pt; font-weight: bold; margin: 1.5em 0 0.89em; }
+
+        .project_main a, .project_main a:hover, .project_main a:active { color: #000; text-decoration: none; }		
+	
+		.list_item { line-height: 1.3em; padding: 0.4em 0; }
+		.project_main .list_item .biblioref-item:first-letter { font-weight: bold;  }
+		
+    	/* project index */
+        .project_item h1 {
+            font-size: 16px; font-weight: bold;
+        }
+        .project_item h1 a { color: #222; }
+        .project_item h1 a:hover { color: #922; }
+        
+        .project_item .short_description { width: 250px; }
+		
+		/* project display */
+		.project_main { margin-top: 10px; }
+		
+		#print-info { margin: 20px; padding: 10px; background: #FFF; border: solid 1px #888; line-height: 1.2em;  }
+		#print-info p { margin: 2em 0; }
+    </style>
+	{% if not noprint_popup %}
+	<style type="text/css" media="print">
+		#print-info { display:none; }
+	</style>
+	<style type="text/css" media="screen">
+		body { min-width: 0; }
+		#print-info { display: block; }
+		.ia-header-outer, .ia-menu-outer, .ia-content-outer, .ia-footer-upper-outer, .ia-footer-lower-outer { display: none; }
+	</style>
+	{% endif %}
+{% endblock head_css %}
+
+{% block page_title %}Projet {{ proj.name|truncatewords:6|slice:"65"}}{% endblock page_title %}
+
+{% block main_header_title %}Projet {{ proj.name }}{% endblock %}
+
+{% block main_content %}
+    {{ block.super }}
+<div class="project_main container_12">
+
+    <h3>Description du projet</h3>
+	<div class="grid_9 push_1">
+	    <div id="project_description" class="_box">
+	        <div class="panel_body">
+	        	 <div id="project-description-content-id" class="project-description-content">{{ proj.description|safe }}</div>
+				 <div class="clear"></div>
+		    </div>
+	    </div>
+	</div>
+
+    <div class="clear"></div>
+
+    <h3>Références bibliographiques</h3>
+	
+    {% if transcriptions %}
+    <h4>Transcriptions</h4>
+	<div class="grid_12">
+	    <div id="project_transcriptions" class="_box">
+	        <div class="_body">
+				<ul>
+				{% for trans in transcriptions %}
+				    <li class='list_item panel-list-item {{ forloop.counter|divisibleby:"2"|yesno:"row2,row1" }}'>
+				        {% include "fiches/bibliography_references/biblio_template.html" with ref=trans.manuscript_b noManBiblioLink=1 %}
+				    </li>
+				{% endfor %}
+				</ul>
+	        </div>
+	    </div>
+	</div>
+	<div class="clear"></div>
+    {% endif %}
+	
+	{% if lit_prim %}
+    <h4>Littérature primaire</h4>
+	<div class="grid_12">
+		<div id="project_littprim" class="_box">
+		    <div class="_body">
+				<ul>
+				{% for biblio in lit_prim %}
+				    <li class='list_item panel-list-item {{ forloop.counter|divisibleby:"2"|yesno:"row2,row1" }}'>
+				        {% include "fiches/bibliography_references/biblio_template.html" with ref=biblio %}
+				    </li>
+				{% endfor %}
+				</ul>
+		    </div>
+		</div>
+	</div>
+	<div class="clear"></div>
+	{% endif %}
+    
+	{% if lit_sec %}
+    <h4>Littérature secondaire</h4>
+    <div class="grid_12">  
+	    <div id="project_littsec" class="_box">
+	        <div class="_body">
+                <ul>
+                {% for biblio in lit_sec %}
+                    <li class='list_item panel-list-item {{ forloop.counter|divisibleby:"2"|yesno:"row2,row1" }}'>
+                        {% include "fiches/bibliography_references/biblio_template.html" with ref=biblio %}
+                    </li>
+                {% endfor %}
+                </ul>
+	        </div>
+	    </div>
+	</div>
+	<div class="clear"></div>
+	{% endif %}
+	
+	<div class="clear"></div>
+</div>
+{% if not noprint_popup %}
+<script type="text/javascript">
+    ;(function($){
+        $(document).ready(function(){
+            if (!$(".ia-header-outer").is(":visible")) {
+				$("body").prepend("<div id='print-info'>" +
+				    "<p>Vous pouvez fermer cette fenêtre après l'impression &nbsp;&nbsp;&nbsp;<button type='button' id='close-win-btn'>Fermer la fenêtre</button></p>" +  
+				    "<p>Si l'impression ne démarre pas automatiquement, affichez la <a href='?print=1&w=0' target='_blank'>version imprimable</a> et imprimez manuellement.</p>" + 
+					"</div>");
+				if ($.fn.button) {
+					$("#close-win-btn").click(function(){window.close()}).button({icons:{primary:'ui-icon-close'}});
+				}
+			}
+			window.print();
+        });
+    })(jQuery);
+</script>
+{% endif %}
+{% endblock main_content %}

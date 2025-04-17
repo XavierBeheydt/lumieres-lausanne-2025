@@ -1,0 +1,54 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% comment %}<!-- 
+===========================================================
+    Manuscript's Transcriptions
+    To be included in the bibliography's edition form
+    for document_type = Manuscript
+===========================================================
+-->{% endcomment %}
+<div class="transcriptions">
+<div class="legend">Transcriptions</div>
+{% if doc.id %}
+<ul class="transcription-list">
+{% for transcription in doc.transcription_set.all %}{% spaceless %}
+    <li>
+
+    {% if perms.fiches.delete_transcription %}
+		<button class="transcription-delbut delete" onclick="if (window.confirm('Supprimer la transcription ?\n(ne peut pas être annulé)\n')) { document.location.href='{% url 'transcription-delete' transcription.id %}' }; return false;">Supprimer</button>&nbsp;
+	{% endif %}
+	   
+        <span>{{ transcription }}</span>
+        <span>[<a class="access" href="{% url 'transcription-display' transcription.id %}">afficher</a>]</span>
+	   
+    {% if perms.fiches.change_transcription %}
+	   <span>&nbsp;[<a class="access" href="{% url 'transcription-edit' transcription.id %}">éditer</a>]</span>
+	{% endif %}
+	 
+    </li>{% endspaceless %}
+{% endfor %}
+</ul>
+{% if perms.fiches.add_transcription %}<div class="transcription_addbox-OFF"><button class="transcription-addbut" type="button" onclick="document.location.href='{% url 'transcription-b-add' doc.id %}'">Ajouter une nouvelle transcription</button></div>{% endif %}
+{% else %}
+{% if perms.fiches.add_transcription %}<p class="info-msg">{% trans "Enregistrer la fiche avant d'y ajouter une transcription" %}</p>{% endif %}
+{% endif %}
+</div>

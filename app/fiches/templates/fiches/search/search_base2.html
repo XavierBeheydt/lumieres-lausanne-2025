@@ -1,0 +1,44 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load static %}
+{% load i18n %}
+{% block head_css %}
+	{{ block.super }}
+	<link charset="utf-8" media="screen" type="text/css" rel="stylesheet" href="{% static 'css/list_base.css' %}" />
+{% endblock head_css %}
+{% block head_js %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% static 'js/lib/jquery/jquery.json.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/lib/base64.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/search.js' %}"></script>
+	<script type="text/javascript">
+		var do_search_url = "{% url 'do-search' %}";
+		var save_settings_url = "{% url 'save-settings' %}";
+		var MEDIA_URL = MEDIA_URL || "{% static '' %}";  <!-- MEDIA_URL will fallback to STATIC_URL -->
+	</script>
+	<script type="text/javascript" src="{% static 'js/search-navigator-save.js' %}"></script>
+{% endblock head_js %}
+
+{% block main_content %}
+	{{ block.super }}
+	{% if user.is_authenticated and display_collector %}{% include "fiches/collections/collector.html" %}{% endif %}
+{% endblock main_content %}

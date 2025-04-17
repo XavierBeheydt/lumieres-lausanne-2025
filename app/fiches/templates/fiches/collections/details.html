@@ -1,0 +1,130 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n fiches_extras %}
+{#{% ac_check coll user as coll_ac %}#}
+{% if not coll_access and not coll_change %}
+	<p class="info info-no-access">{% trans "L'accès à cette collection n'est pas autorisé." %}</p>
+{% else %}
+<script type="text/javascript">
+	//{% if coll_change %}
+	var collection_remove_object_url = '{% url 'collection-remove-object' %}';
+	$(document).ready(function(){
+		if (typeof collection !== 'undefined' && typeof collection.remove_item === 'function') {
+			$("<button>", {
+				text: "Supprimer",
+				title: "Supprimer de la liste",
+				click: function(evt){
+					var $obj = $(evt.target).parents('li').eq(0);
+					try {
+						collection.remove_item({
+							'obj': $obj,
+							'item_title': $obj.contents().not("button").text().trim(),
+							'type_title': $obj.closest('ul').attr("rel") || $obj.closest('dd').prev('dt').text(),
+							'item_type': $obj.attr('id').split('__')[1],
+							'item_id': $obj.attr('id').split('__')[2]
+						});
+					} 
+					catch (e) {
+						return false;
+					}
+					$(evt.target).blur();
+					return false;
+				}
+			}).css("fontSize","9px").button({
+				text: false,
+				icons: { primary: "ui-icon-close" }
+			}).prependTo($(".collection-element-list li"));
+		}
+	});
+	//{% endif %}
+	$(document).ready(function(){
+		try {
+			$("#collection-url-link").text($("#collection-url-link").get(0).href);
+			if ($(".collection-elements dd").length === 0) {
+				$(".collection-elements").html("<p><em>Liste vide</em></p>")
+			}
+		} catch(e) {}
+	});
+	//{% if in_popup %}
+	$(document).ready(function(){
+		$(".collection-element-list li a").click(function(){
+			try {
+				window.opener.location = this.href;
+			} catch(e) {}
+			return false;
+		});
+	});
+	//{% endif %}
+</script>
+
+<div class="collection-details">
+	
+	<h4>{{ coll.name }}</h4>
+	<p class="description">{{ coll.description|linebreaks }}</p>
+	{% if not in_popup %}{% with nb_access_group=coll.access_groups.all|length nb_change_groups=coll.change_groups.all|length %}
+	<div class="access-status">
+	<h5>Accès</h5>
+		<p>URL: <a id="collection-url-link" href="{% if coll.slug %}{% url 'named-workspace-collection' coll.slug %}{% else %}{% url 'workspace-collection' coll.id %}{% endif %}">{{ coll.name }}</a></p>
+{% if coll.owner != user %}<p>Propriétaire: {{ coll.owner.get_full_name|default:coll.owner }}</p>
+{% else %}<p>Privé: <span {% if coll.access_private and nb_access_group or nb_change_groups %}class="hilight" title="Prioritaire sur les accès de groupe"{% endif %}>{{ coll.access_private|yesno:"Oui,Non" }}</span></p>{% endif %}
+	<p>Groupes consultation: {{ coll.access_groups.all|join:", "|default:"Aucun" }}</p>
+    <p>Groupes contribution: {{ coll.change_groups.all|join:", "|default:"Aucun" }}</p>
+	{% endwith %}{% endif %}
+	</div>
+	
+	{% with coll.persons.all as persons %}{% if persons %}
+	<h5>Fiches Biographiques</h5>	
+		<ul class="collection-element-list" rel="Fiche Biographique">
+			{% for p in persons %}
+			<li id="celem__Person__{{ p.id }}"><a href="{% url 'biography-display' p.id %}">{{ p.get_biography.person_name }}</a></li>
+			{% endfor %}
+		</ul>
+	{% endif %}{% endwith %}
+		
+	{% with coll.bibliographies.all as bibliographies %}{% if bibliographies %}
+	<h5>Fiches Bibliographiques</h5>
+		<ul class="collection-element-list" rel="Fiche Bibliographique">
+            {% for ref in bibliographies %}
+            <li id="celem__Biblio__{{ ref.id }}">{% biblioref %}</li>
+            {% endfor %}
+		</ul>
+		{% endif %}{% endwith %}
+		
+		{% with coll.manuscripts.all as manuscripts %}{% if manuscripts %}
+	<h5>Manuscrits</h5>
+		<ul class="collection-element-list">
+			{% for m in manuscripts %}
+				<li id="celem__Manuscript__{{ m.id }}"><a href="{% url 'manuscript-display' m.id %}">{{ m }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}{% endwith %}
+		
+		{% with coll.transcriptions.all as transcriptions %}{% if transcriptions %}
+	<h5>Transcriptions</h5>
+		<ul class="collection-element-list">
+			{% for t in transcriptions %}
+				<li id="celem__Transcription__{{ t.id }}" title="{{ t.manuscript_b.title }}"><a href="{% url 'transcription-display' t.id %}">{{ t.manuscript_b.title|truncate_chars:"40" }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}{% endwith %}
+
+</div>
+{% endif %}

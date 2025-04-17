@@ -1,0 +1,113 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% block head_css %}
+    {{ block.super }}
+	<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/switchaai.css">
+{% endblock %}
+
+{% block main_header_title %}Login{% endblock %}
+{% block main_header_toolbar %}{% endblock main_header_toolbar %}
+
+
+{% block main_content %}
+    <div class="pre-login-form">{% block pre_login_form %}{% endblock %}</div>
+	
+		
+		<div class="grid_5 push_1">
+		    <div class="aai_box" style="float: left; width: 300px; min-height: 200px;">
+                <div class="aai_header">
+                    <p class="aai">Connexion locale</p>
+                </div>
+	            <!-- {% if not form.errors %}
+	            <div class="login-local-btn">
+	                <button type="button">Compte Local</button>
+	            </div>
+	            {% endif %} -->
+	            {% block login_form %}
+				
+	            <div class="local-login-form">
+	                {% if form.errors %}
+	                <p class="message message-error">Votre nom d'utilisateur et/ou mot de passe ne correspondent pas.<br/>
+	                Veuillez essayer encore une fois.
+	                </p>
+	                {% endif %}
+	                
+	                <form method="post" action="{% url 'login-page' %}">{% csrf_token %}
+	                
+	                    <div class="grid_2 alpha">{{ form.username.label_tag }}</div>
+	                    <div class="grid_2 alpha">{{ form.username }}</div>
+	                    <div class="clear"></div>
+	                
+	                    <div class="grid_2 alpha">{{ form.password.label_tag }}</div>
+	                    <div class="grid_2 alpha">{{ form.password }}</div>
+	                    <div class="clear"></div>
+	                    
+	                    <div class="grid_4 alpha login-local-submit"><button id="local-login-form-submit-id" type="submit">Login</button></div>
+	                    <input type="hidden" name="next" value="{{ next }}" />
+	                </form>
+	                <a href="{% url 'reset-password-page' %}">Mot de passe oublié ?</a>
+	            </div>
+	            <script type="text/javascript">
+	                (function($){$(document).ready(function(){
+	                    /* $(".login-local-btn button")
+	                       .click(function(){ $(".login-local-btn").hide(); $(".local-login-form").fadeIn('slow'); })
+	                       .button({icons: {primary: "ui-icon-person"}}); */
+						$("#local-login-form-submit-id").button({icons: {primary: "ui-icon-key"}});
+	                });})(jQuery);
+	            </script>
+	            {% endblock login_form %}
+			
+		        <!--h2 class="aai">Login for non-AAI users</h2>
+		        <div class="aai_user_input_area">
+		            <table>
+		                <tbody><tr>
+		                    <td>
+		                        <input name="action" value="login" type="hidden">
+		                        <h2 class="aai">Username:</h2>
+		                    </td>
+		                    <td>
+		                        <input name="username" size="20" maxlength="20" tabindex="1" type="text">
+		                    </td>
+		                </tr>
+		                <tr>
+		                    <td>
+		                        <h2 class="aai">Password:</h2>
+		                    </td>
+		                    <td>
+		                        <input name="password" size="20" maxlength="20" tabindex="2" type="password">
+		                    </td>
+		                </tr>
+		            </tbody></table>
+		        </div>
+		        <div class="aai_login_button">
+		            <a class="aai" href="http://www.switch.ch/aai/"><img src="{{ STATIC_URL }}aai_images/login.png" alt="login" border="0"></a>
+		        </div-->
+				
+		    </div>
+		</div>
+	</div>
+	
+	
+	
+	<div class="post-login-form">{% block post_login_form %}{% endblock %}</div>
+		
+{% endblock main_content %}

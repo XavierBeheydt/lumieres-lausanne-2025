@@ -1,0 +1,60 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load fiches_extras %}
+{% comment %}<!-- 
+===============================================================================
+==    Template used by the view 'bibliography.documentfile_change_list' and
+==                              'manuscript.documentfile_change_list'
+==    to display the "change list" of the documentfiles linked to a Biblio or
+==	  a Manuscript
+===============================================================================
+-->{% endcomment %}
+{% if doc.documentfiles.count %}
+	{% with doc.documentfiles.all as documentfiles %}
+	<ul>
+		{% with "80" as item_width %}
+		{% for df in documentfiles %}
+		{% if df|df_access:user %}
+		<li id="documentfile__{{ df.id }}">
+			{% if df.access_owner == user or perms.fiches.change_any_documentfile %}{# user with delete permission should also have change permission, so condition for cmd-box is on change #}
+			<div class="cmd-box">
+				<button title="{% trans "Edit document properties" %}" class="edit-docfile" type="button">{% trans "Change" %}</button>
+				{% if df.access_owner == user or perms.fiches.delete_any_documentfile %}
+				<button class="del-docfile" type="button">{% trans "Delete" %}</button>
+				{% endif %}
+			</div>
+			{% endif %}
+			<dl>
+				<dt>{% trans "Title" %}:</dt><dd>{% if df.title %}{{ df.title|truncate_chars:item_width }}{% else %}&nbsp;{% endif %}</dd>
+				<dt>URL:</dt><dd><a href="{{ df.get_absolute_url }}" targe="_blank">{{ df.get_absolute_url|slice:item_width }}</a></dd>
+				<dt>Accès:</dt><dd>&nbsp;{% with access_public=df.access_public access_groups=df.access_groups.all %}{% include "fiches/edition/access_status.html" %}{% endwith %}</dd>
+			</dl>
+		</li>
+		{% endif %}
+		{% endfor %}
+		{% endwith %}
+	</ul>
+	<select name="documentfiles" multiple="multiple" style="display:none">
+		{% for df in documentfiles %}<option value="{{ df.id }}" selected="selected">{{ df.id }}</option>{% endfor %}
+	</select>
+	{% endwith %}
+{% endif %}

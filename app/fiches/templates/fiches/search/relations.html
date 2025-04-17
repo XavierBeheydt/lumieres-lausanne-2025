@@ -1,0 +1,183 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Relations de {{ person }}</title>
+
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/reset.css" media="all" charset="utf-8" />
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/main_styles.css" media="all" charset="utf-8" />
+	{% if JQUI %}
+	<link rel="stylesheet" href="{{ STATIC_URL }}js/lib/jquery-ui-1.9/css/smoothness/jquery-ui-1.9.custom.css" media="all" charset="utf-8" />
+	{% endif %}
+
+	<style type="text/css">
+
+		/* --- Table layout --- */
+		#relations-list ul { display: table; }
+		#relations-list ul li { display: table-row; }
+		#relations-list ul li .cell { display: table-cell; }
+
+		/* Font and spaces */
+		#relations-cmdbox { margin-bottom: 10px; padding-bottom: 5px; border-bottom: solid 1px #999; }
+		#relations-list { font-size: 120%; margin-top: 5px; }
+		.relation-person-src { font-size: 140%; letter-spacing: 0.05em; font-weight: bold; }
+		#relations-list li { line-height: 1.6em; }
+		#relations-list .relation-type { font-size: 8pt; font-style: italic; text-align: right; color: #858585; }
+		#relations-list .person-name { font-size: 10pt; padding-left: 10px; cursor: default; }
+		#relations-list .child-rel { margin-bottom: 1em; }
+
+		/* Colors and Borders */
+		#relations-list ul ul { border: 3px solid #E7E6E2; border-width: 0 0 3px 3px; }
+		#relations-list ul > .row2 > .person-name > .child-rel > ul { border-color: #F7F6F1; }
+		#relations-list ul > .row1 > .person-name > .child-rel > ul { border-color: #E7E6E2; }
+		#relations-list .relation-type { color: #858585; }
+		#relations-list .child-rel { background-color: #F7F6F1; }
+		#relations-list li.row2 { background-color: #E7E6E2; }
+	</style>
+
+	<script type="text/javascript" src="{{ STATIC_URL }}js/lib/jquery/jquery.min.js"></script>
+	{% if JQUI %}<script type="text/javascript" src="{{ STATIC_URL }}js/lib/jquery-ui-1.9/js/jquery-ui-1.9.min.js"></script>{% endif %}
+	<script type="text/javascript">
+		var UI_BUTTON = false;		// Is jQueryUI.button available
+		var relation_browser = {
+
+			load_relation_list: function(url, elem) {
+				var only_relations = [];
+				$("#select-relation-type-id :selected").each(function(i,o){only_relations.push(o.getAttribute("value"))});
+				$(elem).load(url+'?r='+only_relations.join(','))
+			},
+
+			load_initial_list: function() {
+				relation_browser.load_relation_list("{% url 'biography-relations-list' person.id %}", $("#relations-list"));
+			},
+
+			toggleRelationType: function(status) {
+				if (typeof status === 'undefined') {
+					status = $("#hide-relation-type-style").length>0;
+				}
+				if (status) {
+				    $("#hide-relation-type-style").remove();
+				} else {
+					$("body").append($('<style>', {
+					    'id': 'hide-relation-type-style',
+					    'type': 'text/css',
+					    'text': '#relations-list ul li .relation-type{display:none;}#relations-list ul ul .person-name{padding-left:30px}'
+					}));
+				}
+			}
+
+		};
+
+		$(document).ready(function(){
+			// Define globals
+			UI_BUTTON = typeof $(document).button === 'function';
+
+			// Cmd buttons
+			$("#toggle-relation-type-id").click(function(){ relation_browser.toggleRelationType(); }).attr("checked","checked")
+			$("#toggle-subcmdbox-id").click(function(){ $("#relations-subcmdbox").toggle(); }).removeAttr("checked");
+			$("#relation-reload-but").click(function(){relation_browser.load_initial_list();return false;});
+
+
+			if (UI_BUTTON) {
+				$("#toggle-relation-type-id").css('font-size','9px').button({ icons: {primary: 'ui-icon-tag'}, text: false});
+				$("#toggle-subcmdbox-id").css('font-size','9px').button({ icons: {primary: 'ui-icon-gear'}, text: true});
+				$("#relation-reload-but").button({ icons: {primary: 'ui-icon-refresh'}, text: true});
+			}
+
+
+			// Relation types helper
+			$("#select-relation-type-id").after(
+				$('<div>')
+					.append($('<a>',{
+						'text': 'tous',
+						'title': "Selectionne touts les types",
+						'style': "cursor:pointer",
+						'click': function(){$("#select-relation-type-id option").attr("selected","selected");}
+					}))
+					.append('&nbsp;/&nbsp;')
+					.append($('<a>',{
+						'text': 'aucun',
+						'title': "Aucune sélection",
+						'style': "cursor:pointer",
+						'click': function(){$("#select-relation-type-id option").removeAttr("selected");}
+					}))
+			);
+
+
+
+			// Person link behaviour
+			$("a.relation-more-link").live('click', function(){
+					var $a = $(this);
+					if ($a.siblings().hasClass("child-rel")) {
+						$a.siblings(".child-rel").toggle();
+						$a.parent().toggleClass("expanded");
+					}
+					else {
+						//$a.parent().addClass("expanded").append($('<div class="child-rel">').load(this.href));
+
+						relation_browser.load_relation_list(
+							this.href,
+							$('<div class="child-rel">')
+								.append('<p style="text-align:center;margin-top:10px;"><img src="{{ STATIC_URL }}css/indicator.gif" width="16" height="16"></p>')
+								.appendTo($a.parent().addClass("expanded"))
+						);
+
+
+					}
+					return false;
+				}
+			);
+
+
+			// Load initial list
+			relation_browser.load_initial_list();
+		});
+
+
+	</script>
+</head>
+<body>
+<div id="relations-cmdbox">
+		<input type="checkbox" checked="checked" id="toggle-relation-type-id" title='{% trans "Afficher/masquer le type de relation" %}'/><label for="toggle-relation-type-id">{% trans "Afficher/masquer le type de relation" %}</label>
+		&nbsp;
+		<input type="checkbox" id="toggle-subcmdbox-id" title='{% trans "Afficher/masquer les options supplémentaires" %}'/><label for="toggle-subcmdbox-id">{% trans "Options supplémentaires" %}</label>
+
+		<button type="button" id="relation-reload-but">Recharger</button>
+
+		<div id="relations-subcmdbox" style="display:none;">
+			<label for="select-relation-type-id">{% trans "Limiter à ces relations" %}</label>:<br/>
+			<select id="select-relation-type-id" name="t" multiple="multiple" size="{{ relation_type|length }}">
+			{% for rt in relation_type %}
+				<option value="{{ rt.id }}" selected="selected">{{ rt.name }}</option>
+			{% endfor %}
+			</select>
+		</div>
+</div>
+<p>Relations de: <span class="relation-person-src">{{ person }}</span></p>
+<div id="relations-list">
+
+</div>
+</body>
+</html>

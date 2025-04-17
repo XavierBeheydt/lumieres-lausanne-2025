@@ -1,0 +1,38 @@
+{# ---------- Titles ----------- #}
+{{ object.title|safe }}
+{{ object.short_title|safe }}
+{{ object.book_title|safe }}
+{{ object.journal_title|safe }}
+{{ object.series_title|safe }}
+{{ object.dictionary_title|safe }}
+
+{# ---------- Authors ---------- #}
+{% for contrib in  object.contributiondoc_set.all %}
+{{ contrib.person.name }}
+{% endfor %}
+
+{# ---------- Editorial info ----------- #}
+{{ object.place|safe }}
+{{ object.publisher|safe }}
+{{ object.date|date:"Y"|safe }}
+
+{# ---------- Subject Keywords ---------- #}
+{% if object.get_kw_dict %}{% for pkw in  object.get_kw_dict.values|dictsort:"word" %}{{ pkw.word }}{% if pkw.skw %}{% for kw in pkw.skw %}, {{ kw.word }}{% endfor %}{% endif %}
+{% endfor %}{% endif %}
+
+{# --- Subject Persons and Societies ---- #}
+{% with object.subj_person.all as subj_pers %}{% if subj_pers %}{{ subj_pers|join:" ; " }}{% endif %}{% endwith %}
+{% with object.subj_society.all as subj_soc %}{% if subj_soc %}{{ subj_soc|join:" ; " }}{% endif %}{% endwith %}
+
+{# ------------ Abstract ---------------- #}
+{{ object.abstract|safe }}
+
+{# -------------- Notes ----------------- #}
+{% for note in object.notebiblio_set.all %}
+{{ note.text|safe }}
+{% endfor %}
+
+{# ----- Depot, Manuscript Type and Cote ------ #}
+{{ object.depot|safe }}
+{{ object.manuscript_type.name|safe }}
+{{ object.cote|safe }}

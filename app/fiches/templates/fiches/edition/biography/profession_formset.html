@@ -1,0 +1,132 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+<div class="label">Fonctions publiques et privées</div>
+<div class="formset profession-formset">
+    <div class="form-header">
+    	<div class="field begin_date">{{ professionFormset.forms.0.begin_date.label }}</div>
+    	<div class="field end_date">{{ professionFormset.forms.0.end_date.label }}</div>
+    	<div class="field position field-required">{{ professionFormset.forms.0.position.label }}*</div>
+    	<div class="field place">{{ professionFormset.forms.0.place.label }} </div>
+    	<div class="field cmd">Supprimer</div>
+    </div>
+    {{ professionFormset.management_form }}
+    {% for prof_form in professionFormset.forms %}
+    <div class="form-instance profession-form{% if prof_form.errors %} error-in-form{% endif %}">
+    	{{ prof_form.id }}
+        <div class="field begin_date">{{ prof_form.begin_date.errors }}
+        	{{ prof_form.begin_date }}{{ prof_form.begin_date_f }}
+          <br/>{{ prof_form.begin_date_approx }}<label>approximativement</label>
+        </div>
+        <div class="field end_date">{{ prof_form.end_date.errors }}
+        	{{ prof_form.end_date }}{{ prof_form.end_date_f }}
+          <br/>{{ prof_form.end_date_approx }}<label>approximativement</label>
+        </div>
+        <div class="field position">{{ prof_form.position.errors }}
+        	 {{ prof_form.position }}
+        </div>
+        <div class="field place">{{ prof_form.place.errors }}
+        	{{ prof_form.place }}
+        </div>
+        {% if prof_form.instance.id %}<div class="field delete-field">{{ prof_form.DELETE }}</div>{% endif %}
+    </div>
+    {% endfor %}
+	{% with professionFormset.empty_form as prof_form %}
+    <div id="profession-empty_form" class="empty_form" style="display:none">
+	    <div class="form-instance profession-form{% if prof_form.errors %} error-in-form{% endif %}">
+	        {{ prof_form.id }}
+	        <div class="field begin_date">{{ prof_form.begin_date.errors }}
+	            {{ prof_form.begin_date }}{{ prof_form.begin_date_f }}
+              <br/>{{ prof_form.begin_date_approx }}<label>approximativement</label>
+	        </div>
+	        <div class="field end_date">{{ prof_form.end_date.errors }}
+	            {{ prof_form.end_date }}{{ prof_form.end_date_f }}
+              <br/>{{ prof_form.end_date_approx }}<label>approximativement</label>
+	        </div>
+	        <div class="field position">{{ prof_form.position.errors }}
+	             {{ prof_form.position }}
+	        </div>
+	        <div class="field place">{{ prof_form.place.errors }}
+	            {{ prof_form.place }}
+	        </div>
+	        <div class="field delete-field"><input type="checkbox" name="extra_form_DELETE" class="formset_delete_but"></div>
+	    </div>
+    </div>
+	{% endwith %}
+</div>
+<div class="formset-new-field-bar" id="profession-formset-new-field-bar">
+    <button type="button" class="formset-add-new-field"  id="id_but_profession_add_field">Ajouter des champs</button>
+</div>
+<div>&nbsp;</div>
+
+<script type="text/javascript">
+(function($){
+    var init_when_doc_ready = false;
+
+    function __init__() {
+		var prof_formset = $(".profession-formset");
+
+		// Init vardateformat
+		prof_formset.find(".vardateformat").each(function(i,n){fiches_edit.init_vardateformat(n)});
+
+        // addRemoveFormBut
+        prof_formset.find(".profession-form").not(".empty_form .profession-form").each(function(){fiches_edit.addRemoveFormBut(this, "Supprimer la profession")});
+        prof_formset.find(".form-header .cmd").text(" ");
+
+        // Add field button
+        $("#profession-formset-new-field-bar")
+          .width(prof_formset.width())
+          .css({textAlign: "right"});
+        $("#id_but_profession_add_field").bind('click', add_profession_field);
+        fiches_edit.applyAddFieldButtonUI( $("#id_but_profession_add_field") );
+    };
+    if (init_when_doc_ready) { $(document).ready(function(){__init__();}); }
+    else { __init__(); }
+
+    function add_profession_field() {
+        var emptyFormHtml = $("#profession-empty_form").html(),
+            newIdx = parseInt($("#id_profession_set-TOTAL_FORMS").val()),
+            newForm = $(emptyFormHtml.replace(/__prefix__/g, newIdx));
+        $("#id_profession_set-TOTAL_FORMS").val(newIdx + 1);
+
+        $(".profession-form").not("#profession-empty_form .profession-form").last().after(newForm);
+
+        newForm.find(".profession-place").autocomplete("{% url 'ajax-search' %}", {
+            extraParams: {
+            search_field : "place",
+                app_label    : "fiches",
+                model_name   : "PlaceView",
+                outf: "u"
+            }
+        });
+
+        fiches_edit.addRemoveFormBut(newForm, "Supprimer la profession");
+
+		/*
+        if ($.fn.placeHolder) {
+            $("input[placeholder]", newForm).each(function(){ var $t = $(this);
+                $t.placeHolder({'text': $t.attr("placeholder")});
+            });
+        }
+        */
+	}
+
+})(jQuery);
+</script>

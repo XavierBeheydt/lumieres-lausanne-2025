@@ -1,0 +1,143 @@
+{% extends 'fiches/edition/edit_base2.html' %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load fiches_extras i18n %}
+
+{% block page_title %}Changer les accès aux transcriptions{% endblock page_title %}
+
+{% block main_header_title %}Changer les accès aux transcriptions{% endblock %}
+
+{% block head_css %}
+	{{ block.super }}
+	<style type="text/css">
+		form.transcription .radio_field .label { float: left; width: 110px; overflow: hidden; }
+		form.transcription .radio_field ul { margin-left: 115px; height: 1.4em; }
+		form.transcription .radio_field li { float: left; width: 110px; }
+		
+		form.transcription .radio_field li label, 
+		form.transcription label.inner-label { background-color: #fff; color: #000; font-weight: normal; margin:0; padding: 0;}
+		form.transcription .transcriptions select { max-width: 870px; }
+	</style>
+{% endblock head_css %}
+
+{% block main_header_toolbar_buttons %}
+<div class="tb_but tb_but_text save-continue"><a href="#" onclick="return $('form.transcription').submit();" title="Assigner"><img src="{{ STATIC_URL }}css/images/disk.png" width="16" height="16" /><span>Assigner</span></a></div>
+<div class="tb_but tb_but_text cancel"><a href="{% url 'search-biblio' %}?{{ qswoaction }}" title="Annuler" ><img src="{{ STATIC_URL }}css/images/bullet_cross_black.png" width="16" height="16" /><span>Annuler</span></a></div>
+{% endblock main_header_toolbar_buttons %}
+
+{% block main_content %}
+
+<form action="{% url 'trans-change-access' %}" method="POST" 
+	  class="edit-form transcription">
+
+    <fieldset class="access">
+    	<div class="legend">Type d'Accès</div>
+		
+        <div class="fieldWrapper access_private radio_field">
+            <label for="id_access_private">Accès Privé{% tooltiplink "ctxt-help-transcription-access_private" %}</label>
+            <input type="checkbox" checked="checked" id="id_access_private" name="access_private"/>
+			<div id="ctxt-help-transcription-access_private" style="display:none">
+				<h6>Accès privé</h6>
+				<p>Seul le propriétaire pourra voir cette transcription.</p>
+			</div>
+        </div>
+        <div class="fixclear"></div>
+        
+        <div class="fieldWrapper access_groups">
+            <label for="id_access_groups">Groupe d'accès{% tooltiplink "ctxt-help-transcription-access_groups" %}</label>
+            <select id="id_access_groups" multiple="multiple" name="access_groups" size="15">
+            	{% for ug in usergroups %}
+            	<option value="{{ ug.id }}">{{ ug.name }}</option>
+            	{% endfor %}
+            </select>
+			<div id="ctxt-help-transcription-access_groups" style="display:none">
+				<h6>Groupes d'accès</h6>
+				<p>Seuls les membre des groupes sélectionnés pourront voir cette transcription.</p>
+				<p>Maintenez appuyé &laquo;&nbsp;Ctrl&nbsp;&raquo;, ou &laquo;&nbsp;Commande (touche 
+					pomme)&nbsp;&raquo; sur un Mac, pour en sélectionner plusieurs ou en désélectionner.</p>
+			</div>
+        </div>
+        <div class="fixclear"></div>
+        
+        <div class="fieldWrapper access_users radio_field">
+            <label for="id_access_users">Accès Utilisateurs{% tooltiplink "ctxt-help-transcription-access_users" %}</label>
+            <input type="checkbox" name="access_users" id="id_access_users"/>
+			<div id="ctxt-help-transcription-access_users" style="display:none">
+				<h6>Accès utilisateurs</h6>
+				<p>Seuls les utilisateurs identifiés pourront voir cette transcription.</p>
+			</div>
+        </div>
+        <div class="fixclear"></div>
+
+        <div class="fieldWrapper access_public radio_field">
+            <label for="id_access_public">Accès Public{% tooltiplink "ctxt-help-transcription-access_public" %}</label>
+			<input type="checkbox" name="access_public" id="id_access_public"/>
+			<div id="ctxt-help-transcription-access_public" style="display:none">
+				<h6>Accès public</h6>
+				<p>Tout le monde pourra voir cette transcription.</p>
+			</div>            
+        </div>
+        <div class="fixclear"></div>
+        
+        <script>
+        	$(function () {
+        		$('.access :checkbox').click(function() {
+        			$('.access :checkbox').prop("checked", false);
+        			$('.access select').prop("selectedIndex", -1);
+        			this.checked = true;
+        		});
+        		$('.access select').change(function() {
+        			if ( this.selectedIndex >= 0 ) {
+            			$('.access :checkbox').prop("checked", false);
+        			} else {
+            			$('.access #id_access_private').prop("checked", true);
+        			}
+        		});
+        	});
+        </script>
+    </fieldset>
+
+    <fieldset class="transcriptions">
+
+    	<div class="legend">Transcriptions</div>
+		
+        <div class="fieldWrapper transcriptions">
+        	<select multiple="multiple" size="25" name="transcriptions">
+        	
+        		{% for biblio in results.all %}
+        	
+        			{# keeps only manuscripts with at least one transcription #}
+        			{% if biblio.document_type.id == 5 and biblio.transcription_set.all|length > 0 %}
+        			<option selected="selected" value="{{ biblio.pk }}">{{ biblio.get_contributors.first_author_name|default_if_none:"[nom de l'auteur] " }}, {{ biblio.short_title|default:biblio.title }}{% if biblio.date %}, {{ biblio.date|date:"Y" }}{% endif %}</option>
+        			{% endif %}
+        			
+        		{% endfor %}
+        	</select>
+        </div>
+        <div class="fixclear"></div>
+        
+    </fieldset>
+
+	<input type="hidden" name="searchparams" value="{{ qswoaction }}" />
+	{% csrf_token %}
+</form>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+
+body { background: none; font-family: serif; font-size: 10pt; margin:0; padding: 0; line-height: normal; }
+
+.collection-details { font-size: 10pt; font-family: serif; }
+.collection-details h4 { font-size: 140%; font-family: serif; }
+.collection-details h4:before { content: "Collection : « " }
+.collection-details h4:after { content: "  »" }
+.collection-details h5 { margin: 1em 0 0; padding: 0; font-size: 120%; font-weight: normal; text-decoration: underline; }
+.collection-details .description,
+.collection-details .collection-element-list { margin: 0.3em 0 0.2em; padding-left: 1em;  }
+.collection-details .collection-element-list li { line-height: 1.15em; margin: 0.6em 0 0; padding: 0;}
+
+.collection-details .collection-element-list a { color: black; text-decoration: none; }

@@ -1,0 +1,210 @@
+{% extends "fiches/search/search_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load static %}
+{% load i18n fiches_extras pagination_tags %}
+{% block search_box %}{% endblock %}
+{% block head_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'js/lib/jquery-ui-1.8/css/myui-important/jquery-ui-1.8.14.custom.css' %}">
+	<link rel="stylesheet" href="{% static 'css/960/960_24_col.css' %}">
+{% endblock %}
+
+{% block head_js %}
+	{{ block.super }}
+	<script type="text/javascript">
+	(function($){
+		$(document).ready(function(){
+
+			// Prpend the list of checkboxes with a checkbox for selecting ALL other cb
+			// The list is in the form <ul><li><label><input></label></li>(...)</ul>
+			$(".cb-list-container").each(function(){
+				var ckboxes = $(":checkbox[name]", this),
+					first_ck = ckboxes.eq(0),
+					// Build the ``ALL_cb``'s id
+					all_id = first_ck.attr("id").split('_').slice(0,-1).join('_') + '_ALL',
+					// The ``ALL_cb`` itself
+					input_item = $("<input>", {
+							'type': "checkbox",
+							'id': all_id
+						})
+						.click( function(){
+							if ( $(this).is(":checked") ) {
+								ckboxes.filter("[name]").attr("checked", "checked");
+							} else {
+								ckboxes.filter("[name]").removeAttr("checked");
+							}
+						} );
+				// If all cb are already checked, check also the ``ALL_cb``
+				if (ckboxes.not(":checked").length == 0) { input_item.attr("checked","checked"); }
+
+				// Insert the ``ALL_CB`` before the first cb of the list
+				$("<li>").append(
+					$("<label>", {
+						'text': "Tous", 'for': all_id,
+						'class': "cb-all", 'style': "font-weight: bold" }).prepend(input_item)
+				).insertBefore(first_ck.parents("li").eq(0));
+			})
+
+
+			$("#search-but").button({icons: {primary: "ui-icon-search"}});
+
+		});
+	})(jQuery);
+	</script>
+{% endblock head_js %}
+
+{% block main_header_title %}Recherche générale{% endblock %}
+
+{% with 0 as search_debug %}
+{% block main_content %}
+	{{ block.super }}
+<div class="global-search container_24" id="global-search">
+	<form method="get" action="." class="global-search-form grid_24">
+		<div class="global-search-form-container">
+	        <p class="myui-important">{{ form.q }}<button type="submit" id="search-but"><strong>Chercher</strong></button> &nbsp;&nbsp;&nbsp;<a href="{% url 'search-biblio' %}">Recherche avancée</a></p>
+	        <div class="cb-list-container">
+	        	<div class="label">Chercher parmi :</div>
+	        	{{ form.models }}
+			</div>
+		</div>
+	</form>
+	<div class="clear"></div>
+</div>
+
+<div class="global-results container_24" id="global-results">
+	<div class="global-search-results grid_24" id="global-search-results">
+	{% if query %}
+		{% if not page.object_list %}
+		<div class="msg">Pas de résultats trouvés pour la requête: <strong>« {{ query }} »</strong></div>
+		{% endif %}
+
+		{% if page.object_list %}
+        <div class="results-header">
+			{% with page.paginator.count as nb_val %}
+			<div class="grid_4 alpha">&nbsp;{{ nb_val }} fiche{{ nb_val|pluralize }} trouvée{{ nb_val|pluralize }}</div>
+			{% endwith %}
+			<div class="grid_12">{% spaceless %}<div class="results-paging global-results-paging grid_16 omega">{% with page_obj=page %}{% paginate %}{% endwith %}</div>{% endspaceless %}</div>
+			<div class="clear"></div>
+		</div>
+		{% endif %}
+
+	    {% regroup page.object_list by model_name as grouped_results %}
+		<div class="global-results-body">
+		    <ul class="results-group-list">
+		    {% for results in grouped_results %}
+			    <li>
+		        {% if results.grouper == "biblio" or results.grouper == "manuscript_b" %}
+		            <span class="results-model grouper_1">{{ results.list.0.verbose_name }}</span>
+					{% regroup results.list by doctype as grouped_biblio %}
+		            <ul class="results-subgroup-list results-biblio-doctype">
+					{% for biblio_group in grouped_biblio %}
+					    <li class="doctype doctype_{{ biblio_group.list.0.object.document_type.id }}">
+						    <span class="grouper grouper_2">{{ biblio_group.list.0.object.document_type.name }}</span>
+							<ul class="results-item-list">
+							{% for biblio_result in biblio_group.list %}
+			                    <li>{% include "fiches/bibliography_references/biblio_template.html" with ref=biblio_result.object q=request.META.QUERY_STRING link_target="search_result" %}</li>
+			                    {% if search_debug %}<span class="text-field-wrapper">[+]</span><pre class="text-field">{{ result.text }}</pre>{% endif %}
+							{% endfor %}
+							</ul>
+						</li>
+					{% endfor %}
+					</ul>
+		        {% endif %}
+
+		        {% if results.grouper == "person" %}
+				    <span class="results-model grouper_1">{{ results.list.0.verbose_name }}</span>
+					<ul class="results-item-list">
+						{% comment %} to sort by alphabetic order add in the for loop: |dictsort:"object.name" {% endcomment %}
+		            {% for result in results.list %}{% with result.object as person %}
+					    <li>
+						{% if person.has_biography %}
+						    <a id="Person__{{ person.id }}" class="external collectable"
+						    	href="{{ person.get_absolute_url }}?{{ request.META.QUERY_STRING }}"
+						    	target="search_result" title="Afficher la biographie dans une nouvelle fenêtre">{{ person.get_biography.person_name }}</a>
+						{% else %}
+						    {#<span>{{ person.name }} {{ person.id }}</span>#}
+						{% endif %}
+		                {% if search_debug %}<span class="text-field-wrapper">[+]</span><pre class="text-field">{{ result.text }}</pre>{% endif %}
+	                    </li>
+		            {% endwith %}{% endfor %}
+					</ul>
+		        {% endif %}
+
+
+		        {% if results.grouper == "transcription" %}
+				    <span class="results-model grouper_1">Contenu de la transcription</span>
+					<ul class="results-item-list">
+		            {% for result in results.list %}
+					    <li>{% include "fiches/bibliography_references/biblio_template.html" with ref=result.object.manuscript_b q=request.META.QUERY_STRING link_target="search_result" %}</li>
+		                {#<li><a href="{{ result.object.get_absolute_url }}">{{ result.object }}</a></li>#}
+		            {% endfor %}
+					</ul>
+		        {% endif %}
+
+		        </li>
+		    {% endfor %}
+		    </ul>
+	    </div>
+
+        {% if page.object_list %}
+        <div class="results-footer">
+            {% with page.paginator.count as nb_val %}
+            <div class="grid_4 alpha">&nbsp;{{ nb_val }} fiche{{ nb_val|pluralize }} trouvée{{ nb_val|pluralize }}</div>
+            {% endwith %}
+            <div class="grid_12">{% spaceless %}<div class="results-paging global-results-paging grid_16 omega">{% with page_obj=page %}{% paginate %}{% endwith %}</div>{% endspaceless %}</div>
+            <div class="clear"></div>
+        </div>
+        {% endif %}
+
+	{% else %}
+	    {# Show some example queries to run, maybe query syntax, something else? #}
+	{% endif %}
+	</div>
+</div>
+
+{% if user.is_authenticated and display_collector %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('<div>', {
+            "class": 'collector-list-add-button',
+            "title": 'Ajouter à une collection',
+            "click": function() {
+                var $a = $(this).parent().find("a.collectable").eq(0),
+                    a_id = $a.attr('id');
+                try {
+                    collector.addObj_open({
+                        item_title: $a.text(),
+                        item_id: a_id.split('__')[1],
+                        item_type: a_id.split('__')[0]
+                    });
+                } catch(e) {
+                    return false;
+                }
+                return false;
+            }
+        }).prependTo($(".results-item-list li:has(a.collectable)"));
+    });
+</script>
+{% endif %}
+
+{% endblock %}
+{% endwith %}

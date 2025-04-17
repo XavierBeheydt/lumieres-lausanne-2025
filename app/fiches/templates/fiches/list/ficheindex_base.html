@@ -1,0 +1,130 @@
+{% extends "fiches/fiche_base.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load fiches_extras %}
+
+{% block page_title %}{{ model|meta:"verbose_name_plural" }}{% endblock page_title %}
+
+{% block head_css %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/index_base.css" media="all" charset="utf-8" />
+	<style>
+		.list-frame-wrapper .message { display: block; position: absolute; top: 0px; width: 90%;  }
+	</style>
+{% endblock head_css %}
+
+{% block head_js %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% static 'js/lib/base64.js' %}"></script>
+	<link href="{% static 'css/jquery.autocomplete.css' %}" type="text/css" media="all" rel="stylesheet" />
+	<script type="text/javascript" src="{% static 'js/lib/jquery/jquery.bgiframe.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/lib/jquery/jquery.ajaxQueue.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/lib/jquery/jquery.autocomplete.min.js' %}"></script>	
+	{% block window_autoresize %}
+	<script type="text/javascript">
+		function refreshListFrameHeight(n) {
+			var ifr = $(".list-frame"),
+				old_height = ifr.height(),
+		    	new_height = $(window).height() - ifr.offset().top - 35;
+			ifr.height(new_height);
+
+			var n = ++n || 0
+			if ( ( Math.floor(Math.abs(old_height - new_height))>0 ) || n<5 ){
+				$("body").css('overflow','hidden');
+				setTimeout(function(){refreshListFrameHeight(n)}, 50*n);
+			} else { 
+				$("body").css('overflow','visible');
+			}
+		}
+		
+		var loadingListFrameStatus = null;
+		function startLoadingListFrame() {
+			loadingListFrameStatus = "started";
+			$(".list-frame-wrapper")
+				.find(".message").remove().end()
+				.find(".progressbar").show().end()
+				.find("iframe").css("visibility","hidden");
+		}
+		function endLoadingListFrame() {
+			loadingListFrameStatus = "finished";
+			$(".list-frame-wrapper")
+				.find(".message").remove().end()
+				.find(".progressbar").hide().end()
+				.find("iframe").css("visibility","visible");
+		}
+		
+    	$(window).resize(function(){refreshListFrameHeight()});
+		$(document).ready(function(){refreshListFrameHeight();});
+	</script>
+	{% endblock window_autoresize %}
+	<script type="text/javascript">
+		$(document).ready(function(){
+			// Collapsable
+			$(".collapsable-container-trigger").click(function(){
+					$(this).parent().toggleClass('collapsable-container-expanded').toggleClass("extra-field-open")
+						.find("> .collapsable-container-content").toggle(); //slideToggle();
+					if (typeof(refreshListFrameHeight)=="function") { refreshListFrameHeight(); }
+				})
+				.hover(
+					function(){$(this).addClass("collapsable-container-over")},
+					function(){$(this).removeClass("collapsable-container-over")}
+				);
+			$(".collapsable-container > .collapsable-container-content").not(".collapsable-container-expanded > .collapsable-container-content").hide();
+
+			// Focus effect
+			$(".field-row input, .field-row select")
+	    		.focus(function(){ $(this).parents(".field-row").addClass("focussed"); })
+	    		.blur(function(){ $(this).parents(".field-row").removeClass("focussed"); });
+				
+			$("#list-frame").load(function(){
+				setTimeout(function(){ 
+					if (loadingListFrameStatus == 'started') {
+						$(".list-frame-wrapper")
+							.find(".progressbar").hide().end()
+							.find("iframe").css("visibility","hidden").end()
+							.find(".message").remove().end()
+							.prepend($('<div>', {
+								'class': 'message message-error',
+								'text' : "Une erreur s'est produite, aucun résultats à afficher."
+							}))
+								
+					}
+				}, 500);
+			});
+		});
+	</script>
+{% endblock head_js %}
+
+{% block left_menu_items %}
+	<li><span class="selected">{{ model|meta:"verbose_name_plural" }}</span></li>
+	{% if add_url %}<li><a href="{{ add_url }}">{% trans "Créer une nouvelle fiche" %}</a></li>{% endif %}
+{% endblock left_menu_items %}
+
+{% block main_header_title %}{% with model|meta:"verbose_name_plural" as fiche_type_name %}{{ block.super }}{% endwith %}{% endblock %}
+{% block main_header_toolbar %}{% endblock main_header_toolbar %}
+
+{% block main_content %}
+	{% include "fiches/collections/collector.html" %}
+	<div class="list-frame-wrapper"><div class="progressbar">Chargement en cours...</div>
+		<iframe id="list-frame" class="list-frame" src="" ></iframe>
+	</div>
+{% endblock main_content %}

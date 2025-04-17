@@ -1,0 +1,192 @@
+{% extends "fiches/search/results_base.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load fiches_extras pagination_tags %}
+{% block results_content %}
+
+{% autopaginate object_list %}
+<style>
+	th { vertical-align: middle; }
+	td.center { text-align: center; }
+	/*{% if user.is_authenticated and display_collector %}*/
+	a.collectable { padding-left: 20px !important; }
+	.collector-list-add-button { margin: 3px 0 0 1px !important; }
+	/*{% endif %}*/
+</style>
+{% if display.journal_articles %}
+<script type="text/javascript">
+	function load_journal_articles(obj, person_id) {
+		var url = '{% url 'get-person-publications' "#" %}',
+			journal_title  = $("#search-filter-applied .filter-journal_articles :selected").val() || "";
+		
+		$(obj).hide().parent().append($('<img>', {
+			src: "{{ STATIC_URL }}css/indicator.gif",
+			width: 16, height: 16
+		}))
+		.load(url.replace('#',person_id)+'?j='+Base64.encode(journal_title));
+	}
+</script>
+{% endif %}
+<div class="paginator top">
+	<span class="pagination-nbval">{{ nb_val }} fiche{{ nb_val|pluralize }} trouvée{{ nb_val|pluralize }} </span>
+	{% paginate %}
+</div>
+<table class="results" style="width:100%;">
+	<thead>
+		<tr>
+			<th rowspan="2" style="min-width:250px;">Nom</th>
+		{% if display.birth or display.death %}<th rowspan="2">Naissance</th>{% endif %}
+		{% if display.birth or display.death %}<th rowspan="2">Décès</th>{% endif %}
+		{% if display.relation %}<th rowspan="2">Relations</th>{% endif %}
+		{% if display.prof %}<th colspan="3">Profession</th>{% endif %}
+		{% if display.society %}<th colspan="3">Société ou Académie</th>{% endif %}
+		{% if display.religion %}<th rowspan="2">Religion</th>{% endif %}
+		{% if display.journal_articles %}<th rowspan="2">Articles de journaux</th>{% endif %}
+		</tr>
+		<tr>
+			{% if display.prof %}
+			<td>poste</td>
+			<td style="width:50px;overflow:hidden">début</td>
+			<td style="width:50px;overflow:hidden">fin</td>
+			{% endif %}
+			{% if display.society %}
+			<td></td>
+			<td style="width:50px;overflow:hidden">début</td>
+			<td style="width:50px;overflow:hidden">fin</td>
+			{% endif %}
+		</tr>
+	</thead>
+	<tbody>
+{% for person in object_list %}
+	{% with person.get_biography as bio %}
+	<tr class="{% cycle "row1" "row2" %}">
+		<td>
+		{% if person.has_biography %}
+			<a id="Person__{{ person.id }}" class="collectable" href="{% url 'biography-display' person.id %}" title="Afficher la biographie dans une nouvelle fenêtre" target="search_result">{{ bio.person_name }}</a>
+		{% else %}
+			<span>{{ person.name }} {{ person.id }}</span>
+		{% endif %}
+		</td>
+		
+		{% if display.birth or display.death %}
+		<!-- Naissance -->
+		<td>
+			<span title="{{ bio|date_f:"birth_date" }}{% if bio.birth_place %} à {{ bio.birth_place }}{% endif %}">{{ bio.birth_date|date:"Y" }}</span>
+		</td>
+		{% endif %}
+		
+		{% if display.birth or display.death %}
+		<!-- Décès -->
+		<td>
+			<span title="{{ bio|date_f:"death_date" }}{% if bio.death_place %} à {{ bio.death_place }}{% endif %}">{{ bio.death_date|date:"Y" }}</span>
+		</td>
+		{% endif %}
+		
+		
+		{% if display.relation %}
+		<!-- Relations -->
+		<td class="center">
+		{% if person.has_relations %}
+			[<a class="display-relation-link" target="_blank" href="{% url 'search-relations' %}?p={{ person.id }}">afficher</a>]
+		{% endif %}
+		</td>
+		{% endif %}
+		
+		
+		{% if display.prof %}
+		<!-- Profession -->
+		<td colspan="3" style="width:450px;">
+		{% if bio.profession_set.count %}
+			<table width="100%">
+			{% for p in bio.profession_set.all %}
+				<tr>
+					<td>
+						<span title="{{ p.get_formatted_dates|join:" - " }}">{{ p.position }}{% if p.place %}&nbsp;à&nbsp;{{ p.place }}{% endif %}</span><br/>
+					</td>
+					<td style="width:50px;overflow:hidden">
+						<span title="{{ p|date_f:"begin_date" }}">{{ p.begin_date|date:"Y" }}</span>
+					</td>
+					<td style="width:50px;overflow:hidden">
+						<span title="{{ p|date_f:"end_date" }}">{{ p.end_date|date:"Y" }}</span>
+					</td>
+				</tr>
+			{% endfor %}
+			</table>
+		{% endif %}
+		</td>
+		{% endif %}
+		
+		<!-- Society -->
+		{% if display.society %}
+		<td colspan="3" style="width:450px;">
+		{% if bio.societymembership_set.count %}
+			<table width="100%">
+			{% for socmem in bio.societymembership_set.all %}
+				<tr>
+					<td>
+						{{ socmem.society.name }}
+					</td>
+					<td style="width:50px;overflow:hidden">
+						<span title="{{ socmem|date_f:"begin_date" }}">{{ socmem.begin_date|date:"Y" }}</span>
+					</td>
+					<td style="width:50px;overflow:hidden">
+						<span title="{{ socmem|date_f:"end_date" }}">{{ socmem.end_date|date:"Y" }}</span>
+					</td>
+				</tr>
+			{% endfor %}
+			</table>
+		{% endif %}
+		</td>
+		{% endif %}
+		
+		
+		{% if display.religion %}
+		<!-- Religion -->
+		<td>
+			<span>{{ bio.religion }}</span>
+		</td>
+		{% endif %}
+		
+		
+		{% if display.journal_articles %}
+		<td>
+			<div><button type="button" onclick="load_journal_articles(this, {{ person.id }})">Afficher les articles</button></div>
+		</td>
+		{% endif %}
+	</tr>
+	{% endwith %}
+{% endfor %}
+	</tbody> 
+</table>
+<div class="paginator bottom">{% paginate %}</div>
+{% if display.relation %}
+<script type="text/javascript">
+	$(".display-relation-link").click(function(){
+		try{ 
+			var w = window.open(this.href,'','width=500,height=400,location=no,status=no,resizable=yes,scrollbars=yes,toolbar=no');
+			w.focus();
+		}
+		catch(e){}
+		finally{ return false; }
+	});
+</script>
+{% endif %}
+{% endblock results_content %}

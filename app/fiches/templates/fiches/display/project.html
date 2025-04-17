@@ -1,0 +1,331 @@
+{% extends "fiches/display/display_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->{% endcomment %}
+{% load i18n fiches_extras static %}
+
+{% block head_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/project_description.css' %}" media="all" charset="utf-8" />
+    <style>
+        /* project index */
+        .project_item h1 {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .project_item h1 a {
+            color: #222;
+        }
+        .project_item h1 a:hover {
+            color: #922;
+        }
+        .project_item .short_description {
+            width: 250px;
+        }
+
+        /* project display */
+        .project_main { margin-top: 10px; }
+
+        .ref_list li.ref_item {
+            background: url("{% static 'css/images/doctype_.png' %}") 0px 4px no-repeat;
+            position: relative;
+            padding-left: 21px;
+        }
+        .ref_list li.doctype_1  { background-image: url("{% static 'css/images/doctype_book.png' %}"); }
+        .ref_list li.doctype_2  { background-image: url("{% static 'css/images/doctype_bookItem.png' %}"); }
+        .ref_list li.doctype_3,
+        .ref_list li.doctype_4  { background-image: url("{% static 'css/images/doctype_journalArticle.png' %}"); }
+        .ref_list li.doctype_5  { background-image: url("{% static 'css/images/doctype_manuscript.png' %}"); }
+
+        .project_main li.list_item .doctype_title {
+            height: 20px;
+            width: 20px;
+            left: 0;
+            position: absolute;
+        }
+        .project_main li.list_item .remove_item_but {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: none;
+            z-index: 100;
+            border: solid 1px #AAA;
+            background-color: #D9D9D9;
+            background-image: url("{% static 'js/lib/jquery-ui-1.9/css/smoothness/images/ui-icons_888888_256x240.png' %}");
+            border-radius: 3px;
+        }
+        .project_main li.list_item:hover .remove_item_but {
+            display: block;
+        }
+        .project_main li.list_item .remove_item_but:hover {
+            border-color: #888;
+            background-image: url("{% static 'js/lib/jquery-ui-1.9/css/smoothness/images/ui-icons_222222_256x240.png' %}");
+        }
+    </style>
+{% endblock head_css %}
+
+{% block page_title %}Projet {{ proj.name|truncatewords:6|slice:"65" }}{% endblock page_title %}
+
+{% block main_header_title %}
+    Projet {{ proj.name }}
+{% endblock main_header_title %}
+
+{% block main_header_toolbar_buttons %}
+    <div class="tb_but">
+        <a href="?print=1" title="Imprimer"
+           onclick="window.open(this.href,'','height=200,width=600,location=no,toolbar=no');return false;">
+            <img src="{% static 'css/images/printer.png' %}" width="16" height="16"/>
+        </a>
+    </div>
+{% endblock %}
+
+{% block main_content %}
+    {{ block.super }}
+
+    <div class="project_main container_12">
+        <div class="grid_7">
+            <div id="project_description" class="panel_box">
+                <h4>Description du projet</h4>
+                <div class="panel_body">
+                    <div id="project-description-content-id" class="project-description-content">
+                        {{ proj.description|safe }}
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid_5">
+            {% if transcriptions %}
+            <div id="project_transcriptions" class="panel_box">
+                <h4>Transcriptions</h4>
+                <div class="panel_body">
+                    <div class="loading"></div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if lit_prim %}
+            <div id="project_littprim" class="panel_box">
+                <h4>Littérature primaire</h4>
+                <div class="panel_body">
+                    <div class="loading"></div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if lit_sec %}
+            <div id="project_littsec" class="panel_box">
+                <h4>Littérature secondaire</h4>
+                <div class="panel_body">
+                    <div class="loading"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <script type="text/javascript">
+    (function($){
+
+        // ------------------ Transcriptions ------------------
+        function updateTranscriptionList() {
+            var pHeader = $("#project_transcriptions .panel_header"),
+                orderby = pHeader.find(".ordering select").val(),
+                nbItem  = pHeader.find(".nbItem select").val();
+            loadTranscriptions(1, nbItem, orderby);
+        }
+
+        function loadTranscriptions(pageNum, nbItem, orderby) {
+            var pInt = parseInt(pageNum) || 1;
+            var nbInt = parseInt(nbItem) || 10;
+            orderby = (orderby === 'd' || orderby === 'a') ? orderby : 'd';
+
+            var loaderDisplayID = (!!pageNum)
+                ? setTimeout(function(){
+                    $("#project_transcriptions .panel_body").html('<div class="loading"></div>');
+                }, 500)
+                : null;
+
+            $("#project_transcriptions .panel_body").load(
+                "{% url 'project-transcription-list' proj.id %}?page=" + pInt + "&nbitem=" + nbInt + "&orderby=" + orderby,
+                function(){
+                    clearTimeout(loaderDisplayID);
+                    initPagination("#project_transcriptions .panel_body", loadTranscriptions);
+                }
+            );
+        }
+
+        // ------------------ Littérature Primaire ------------------
+        function updateLittprimList() {
+            var pHeader = $("#project_littprim .panel_header"),
+                orderby = pHeader.find(".ordering select").val(),
+                nbItem  = pHeader.find(".nbItem select").val();
+            loadLittprim(1, nbItem, orderby);
+        }
+
+        function loadLittprim(pageNum, nbItem, orderby) {
+            var pInt = parseInt(pageNum) || 1;
+            var nbInt = parseInt(nbItem) || 10;
+            orderby = (orderby === 'd' || orderby === 'a') ? orderby : 'd';
+
+            var loaderDisplayID = (!!pageNum)
+                ? setTimeout(function(){
+                    $("#project_littprim .panel_body").html('<div class="loading"></div>');
+                }, 500)
+                : null;
+
+            $("#project_littprim .panel_body").load(
+                "{% url 'project-littprim-list' proj.id %}?page=" + pInt + "&nbitem=" + nbInt + "&orderby=" + orderby,
+                function(){
+                    clearTimeout(loaderDisplayID);
+                    initPagination("#project_littprim .panel_body", loadLittprim);
+                }
+            );
+        }
+
+        // ------------------ Littérature Secondaire ------------------
+        function updateLittsecList() {
+            var pHeader = $("#project_littsec .panel_header"),
+                orderby = pHeader.find(".ordering select").val(),
+                nbItem  = pHeader.find(".nbItem select").val();
+            loadLittsec(1, nbItem, orderby);
+        }
+
+        function loadLittsec(pageNum, nbItem, orderby) {
+            var pInt = parseInt(pageNum) || 1;
+            var nbInt = parseInt(nbItem) || 10;
+            orderby = (orderby === 'd' || orderby === 'a') ? orderby : 'd';
+
+            var loaderDisplayID = (!!pageNum)
+                ? setTimeout(function(){
+                    $("#project_littsec .panel_body").html('<div class="loading"></div>');
+                }, 500)
+                : null;
+
+            $("#project_littsec .panel_body").load(
+                "{% url 'project-littsec-list' proj.id %}?page=" + pInt + "&nbitem=" + nbInt + "&orderby=" + orderby,
+                function(){
+                    clearTimeout(loaderDisplayID);
+                    initPagination("#project_littsec .panel_body", loadLittsec);
+                }
+            );
+        }
+
+        // Helper to set up pagination click handlers
+        function initPagination(containerSelector, loaderCallback) {
+            $(containerSelector).find(".panel_paging .pagination a").each(function(){
+                $(this).on("click", function(evt){
+                    evt.preventDefault();
+                    try {
+                        var search   = this.href.split('?')[1],
+                            pageNum  = /page=(\d+)/.exec(search)[1],
+                            nbItem   = $(this).closest(".panel_body").find(".panel_header .nbItem :selected").val(),
+                            orderby  = $(this).closest(".panel_body").find(".panel_header .ordering :selected").val();
+                        loaderCallback(pageNum, nbItem, orderby);
+                    } catch(e) {}
+                    return false;
+                });
+            });
+        }
+
+        // Removing an item from the project
+        function remove_item(item) {
+            var idrec = item.find("a.collectable").attr("id").split('__');
+            var p = {
+                obj:        item,
+                item_type:  idrec[0],
+                item_id:    idrec[1],
+                item_title: item.text().trim()
+            };
+
+            var dlog = $("<div>", {
+                id: "collection-remove-object-confirm-dlog",
+                title: "Retirer un élément de la collection",
+                html: "Êtes-vous sûr de vouloir retirer l'élément :<br/><strong>«" + p.item_title + "»</strong> ?"
+            }).appendTo("body").dialog({
+                modal: true,
+                resizable: false,
+                width: 400,
+                buttons: {
+                    "Oui": function() {
+                        $.ajax({
+                            url: "{% url 'project-remove-object' %}",
+                            type: "POST",
+                            data: {
+                                'proj_id': "{{ proj.id }}",
+                                'item_id': p.item_id,
+                                'item_type': p.item_type
+                            },
+                            success: function() {
+                                p.obj.hide();
+                                dlog.dialog("close");
+                            },
+                            error: function() {
+                                dlog.html("Une erreur est survenue lors du traitement. Essayez de recharger la page.");
+                            }
+                        });
+                    },
+                    "Non": function() {
+                        p.obj.removeClass("hilight");
+                        dlog.dialog("close");
+                    }
+                },
+                close: function() {
+                    dlog.remove();
+                }
+            });
+        }
+
+        // Document ready
+        $(function(){
+
+            // Delay showing the loading spinner for a nicer effect
+            $(".panel_body .loading").css("visibility","hidden");
+            setTimeout(function(){
+                $(".panel_body .loading").fadeOut(0)
+                                         .css("visibility","visible")
+                                         .fadeIn("normal");
+            }, 750);
+
+            // Instead of .live(), use .on() for dynamic elements
+            // (Here we assume these elements exist from the start, so it’s direct)
+            $("#project_transcriptions .panel_header").on("change", ".nbItem select, .ordering select", updateTranscriptionList);
+            $("#project_littprim .panel_header").on("change", ".nbItem select, .ordering select", updateLittprimList);
+            $("#project_littsec .panel_header").on("change", ".nbItem select, .ordering select", updateLittsecList);
+
+            $(document).on("click", ".remove_item_but", function(){
+                remove_item($(this).closest(".list_item"));
+            });
+
+            // Initial loads
+            {% if transcriptions %}
+                loadTranscriptions();
+            {% endif %}
+            {% if lit_prim %}
+                loadLittprim();
+            {% endif %}
+            {% if lit_sec %}
+                loadLittsec();
+            {% endif %}
+        });
+
+    })(jQuery);
+    </script>
+{% endblock main_content %}

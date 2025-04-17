@@ -1,0 +1,189 @@
+{% extends "fiches/fiche_base2.html" %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n %}
+{% load fiches_extras %}
+{% load static %}
+
+{% block head_js %}
+	{{ block.super }}
+	<script type="text/javascript">
+		var current_collection_id = "{{ coll.id }}",
+		    collection_display_popup_url_base = '{% url 'named-collection-display-popup' "#" %}',
+		    collection_new_url = '{% url 'collection-new' %}',
+		    collection_edit_url_base = '{% url 'collection-edit' "#" %}',
+		    collection_delete_url_base = '{% url 'collection-delete' "#" %}';
+	</script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/collection.js"></script>
+	<script type="text/javascript">
+		// Init collection.urls
+		try{
+			collection.current_id = "{{ coll.id }}";
+			$.extend(collection.urls, {
+				'create' : '{% url 'collection-new' %}',
+				'remove' : '{% url 'collection-delete' "#" %}',
+				'edit'   : '{% url 'collection-edit' "#" %}',
+				'popup'  : '{% url 'named-collection-display-popup' "#" %}'
+			});
+		}catch(e){}
+		
+		$(document).ready(function(){
+			var get_button_coll_id = function(evt) {
+					var collID, $p = $(evt.target).parents('li');
+					try { collID = $p.attr('id').split('__')[1]; } catch(e) { return null; }
+					return collID;
+			};
+			var get_button_coll_slug_or_id = function(evt) {
+					var collID, $p = $(evt.target).parents('li');
+					try { 
+					   collID = $p.attr("rel") || $p.attr('id').split('__')[1];
+					} catch(e) { return null; }
+					return collID;
+			};
+			
+			
+			if (typeof collection.remove === 'function' && typeof collection.edit === 'function') {
+					$("#user-collection li").each(function(){
+						var $li = $(this),
+							cmdbox = $("<span>", {'class':'cmd-box'}).prependTo($li);
+						cmdbox.append(
+							$("<button>",{
+								text: "Supprimer",
+								title: "Supprimer la liste",
+								click: function(evt) { 
+									var $obj= $(evt.target.parentNode.parentNode),
+										//coll_title = $obj.contents().filter(function() {return this.nodeType == 3;}).text(),
+										coll_title = $obj.find('a').text(),
+										coll_id = get_button_coll_id(evt);
+									collection.remove(coll_id, coll_title);
+									$(evt.target).blur(); return false; }
+							})
+							.button({text: false, icons: { primary: "ui-icon-close" }})
+						);
+						cmdbox.append(
+							$("<button>",{
+								text: "Modifier",
+								title: "Modifier la liste",
+								click: function(evt) {
+									collection.edit(get_button_coll_id(evt));
+									$(evt.target).blur(); 
+									return false; 
+								}
+							})
+							.button({text: false, icons: { primary: "ui-icon-pencil" }})
+						);
+						cmdbox.append($("<button>", {							
+								text: "Nouvelle fenêtre",
+								title: "Ouvrir dans une nouvelle fenêtre",
+								click: function(evt) {
+									collection.popup_display(get_button_coll_slug_or_id(evt));
+									$(evt.target).blur(); 
+									return false;
+								}
+							})
+							.button({text: false, icons: { primary: "ui-icon-newwin" }})
+						);
+						cmdbox.buttonset();
+					});
+			}
+			
+			$("#collection-new-collection").
+				button({icons: {primary: "ui-icon-plusthick"}}).
+				click(function(evt){
+					collection.create(); $(evt.target).blur(); return false;
+				}
+			);
+			
+			// Shared collections
+			$("#shared-collection li, #contrib-collection li").each(function(){
+				var $li = $(this),
+					cmdbox = $("<span>", {'class':'cmd-box'}).prependTo($li);
+					cmdbox.append($("<button>", {							
+							text: "Nouvelle fenêtre",
+							title: "Ouvrir dans une nouvelle fenêtre",
+							click: function(evt) { 
+								collection.popup_display(get_button_coll_id(evt));
+								$(evt.target).blur(); 
+								return false;
+							}
+						})
+						.button({text: false, icons: { primary: "ui-icon-newwin" }})
+					);
+					cmdbox.buttonset();
+			});
+			
+			$(".collection-list li").click( function(){ document.location = $(this).find("a").attr("href"); return false; });
+		});
+		
+	</script>
+{% endblock %}
+{% block head_css %}
+	{{ block.super }}
+	<link rel="stylesheet" media="all" charset="utf-8" href="{% static 'css/collection.css' %}" />
+	<style type="text/css">.main { margin-left: 0; }</style>
+{% endblock %}
+
+
+{% block page_title %}{% blocktrans with user.get_full_name|default:user.username as username %}Espace de travail personnel de {{ username }}{% endblocktrans %}{{ block.super }}{% endblock page_title %}
+
+{% block main_menu %}{% with "workspace" as fiche_type %}{{ block.super }}{% endwith %}{% endblock %}
+
+{#<!-- ========== Main Header Title ========== -->#}
+{% block main_header_title %}Liste des Collections{% endblock %}
+{% block main_header_toolbar_buttons %}
+<div class="tb_but collection-new"><a href="#" title="{% trans "Ajouter une collection" %}"><img src="{% static 'css/images/add.png' %}" width="16" height="16" alt="{% trans "Ajouter une collection" %}" /></a></div>
+{% endblock main_header_toolbar_buttons %}
+{% block main_header_toolbar %}{% endblock %}
+
+
+{#<!-- ========== Main Content ========== -->#}
+{% block main_content %}
+<div class="left-col">
+	<h4>Collections de l'utilisateur</h4>
+	<ul id="user-collection" class="collection-list">
+		{% for c in coll_list %}
+		<li id="coll__{{ c.id }}" rel='{{ c.slug|default:"" }}' {% if c.id = coll.id %} class="selected"{% endif %}><a href="{% url 'collection-index' c.id %}">{{ c }}</a></li>
+		{% endfor %}
+	</ul>
+	<p><button id="collection-new-collection">{% trans "Ajouter une collection" %}</button></p>
+	{% if contrib_coll %}
+	<hr/>
+	<h4>Collections partagées</h4>
+	<ul id="contrib-collection" class="collection-list">
+		{% for c in contrib_coll %}
+		<li id="coll__{{ c.id }}"{% if c.id = coll.id %} class="selected"{% endif %}><a href="{% url 'collection-index' c.id %}">{{ c }}</a></li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+    {% if shared_coll %}
+    <hr/>
+    <h4>Collections en consultation</h4>
+    <ul id="shared-collection" class="collection-list">
+        {% for c in shared_coll %}
+        <li id="coll__{{ c.id }}"{% if c.id = coll.id %} class="selected"{% endif %}><a href="{% url 'collection-index' c.id %}">{{ c }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+<div class="right-col">
+	{% include "fiches/collections/details.html" %}
+</div>
+{% endblock main_content%}

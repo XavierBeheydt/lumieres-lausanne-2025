@@ -1,0 +1,480 @@
+{% extends ext_template %}
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+
+{% load i18n fiches_extras static %}
+
+{% block page_title %}
+    {{ doc.title|truncatewords:6|slice:"65"}}
+    {{ block.super }}
+{% endblock page_title %}
+
+{% block head %}
+    {{ block.super }}
+    {{ contributionFormset.media }}
+    {{ form.media }}
+{% endblock head %}
+
+{% block head_js %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        /* 1) Ensure doctype_exclusive_fields & doctype_allexclusive_fields are available */
+        var doctype_exclusive_fields = {{ doctype_exclusive_fields_js|default:"{}" }};
+        var doctype_allexclusive_fields = {{ doctype_allexclusive_fields_js|default:"{}" }};
+    </script>
+    
+    <!-- 2) Load the dynamic list widget code -->
+    <script type="text/javascript" src="{% static 'js/list_widget.js' %}"></script>
+    
+    <script type="text/javascript">
+        /**
+         * Setup autocomplete for dynamic list fields.
+         * For "Person", we call the 'ajax-search' URL with the relevant extraParams.
+         */
+        function dynamic_list_autocomplete(o, field, model) {
+            $(o).autocomplete("{% url 'ajax-search' %}", {
+                extraParams: {
+                    search_field: field,
+                    app_label: "fiches",
+                    model_name: model,
+                    outf: "_m__format_for_ajax_search",
+                    and_queries: '[{"field":"==modern","value":false}]'
+                },
+                formatResult: function (data, label) {
+                    // Removes birth/death dates (if present in the label) from the displayed value
+                    if (label.match(/\d+]$/)) {
+                        return label.substring(0, label.lastIndexOf(' ['));
+                    } else {
+                        return label;
+                    }
+                }
+                {% if not perms.fiches.can_add_listitem %}
+                , mustMatch: true
+                , autoFill: true
+                , selectFirst: true
+                {% endif %}
+            })
+            .result(function(event, data, formatted) {
+                var $this = $(this);
+                if (data) {
+                    // Ensure the first element of 'data' is the ID
+                    if (isNaN(parseInt(data[0]))) data.reverse();
+                    $this.siblings('.helper_input_value').val(data.join("|"));
+                }
+                {% if perms.fiches.can_add_listitem %}
+                else {
+                    // If it's a new name, store it with leading "|"
+                    var data_str = $this.val();
+                    data_str = data_str ? "|" + data_str : "";
+                    $this.siblings('.helper_input_value').val(data_str);
+                }
+                {% endif %}
+                // Enable the "Add" button once we have a value
+                $this.parents(".dynamiclist_container")
+                     .find(".helper_addbut")
+                     .removeAttr("disabled");
+            })
+            .blur(function(){
+                // Force the autocomplete to finalize/validate on blur
+                $(this).search();
+            });
+        }
+    
+        /**
+         * Optionally used for the #id_publisher autocomplete to filter by litt. type
+         */
+        function litteratureType_query() {
+            var littype = $("input[name=litterature_type]:checked").val();
+            return (littype) ? [{"field":"==litterature_type","value":littype}] : "";
+        }
+    
+        $(document).ready(function(){
+            /* ============ Static List Setup (if any) ============ */
+            $(".staticlist_container")
+                .find(".staticlist_value_entry")
+                .each(function(){
+                    staticlist_widget.appendDeleteButton(this);
+                });
+    
+            $(".staticlist_helper_addbut, .dynamiclist_helper_addbut").button({
+                icons: { primary: "ui-icon-plusthick" }
+            });
+    
+            $(".staticlist_helper_addbut, .dynamiclist_helper_addbut").click(function(){
+                // Fade-out and remove the "add info" box
+                $(this).parents(".fieldWrapper").eq(0)
+                       .find(".staticlist_add_info, .dynamiclist_add_info")
+                       .fadeOut(function(){
+                           $(this).remove();
+                       });
+            });
+    
+    
+            /* ============ Dynamic List Setup (Persons, etc.) ============ */
+    
+            // Hook up the “Person” autocomplete to any inputs with class .dynamiclist_helper_input
+            dynamic_list_autocomplete($(".dynamiclist_helper_input"), 'name', 'Person');
+    
+            // On page load, add "delete" buttons to existing dynamic list entries
+            $(".dynamiclist_container").find(".dynamiclist_value_entry").each(function(){
+                dynamiclist_widget.appendDeleteButton(this);
+            });
+    
+    
+            /* ============ Additional UI / Autocomplete Setup ============ */
+    
+            // Some optional small UI button styling
+            $(".transcription-addbut").css({"font-size":"11px"})
+                .button({ icons: { primary: 'ui-icon-circle-plus' }});
+            $(".transcription-delbut").button({
+                text: false,
+                icons: { primary: 'ui-icon-closethick' }
+            });
+    
+            // Show/hide the .staticlist_add_info or .dynamiclist_add_info box
+            $(".select-primary-kw, .staticlist_helper_select, .dynamiclist_helper_input, .helper_input_value")
+                .change(function(evt){
+                    if (evt.originalEvent) {
+                        var $this = $(this);
+                        if ($this.val() && $this.val() !== "-1") {
+                            $this.parents(".fieldWrapper").eq(0)
+                                 .find(".staticlist_add_info, .dynamiclist_add_info")
+                                 .fadeIn();
+                        } else {
+                            $this.parents(".fieldWrapper").eq(0)
+                                 .find(".staticlist_add_info, .dynamiclist_add_info")
+                                 .fadeOut();
+                        }
+                    }
+                });
+    
+            // Autocomplete for Journal Title
+            $("#id_journal_title").autocomplete("{% url 'ajax-search' %}", {
+                extraParams: {
+                    search_field: "journal_title",
+                    app_label: "fiches",
+                    model_name: "Biblio",
+                    outf: "_f__journal_title"
+                }
+                {% if not perms.fiches.can_add_listitem %}
+                , mustMatch: true
+                , autoFill: true
+                , selectFirst: true
+                {% endif %}
+            });
+    
+            // Autocomplete for Journal Abbreviation
+            $("#id_journal_abr").autocomplete("{% url 'ajax-search' %}", {
+                extraParams: {
+                    search_field: "journal_abr",
+                    app_label: "fiches",
+                    model_name: "Biblio",
+                    outf: "_f__journal_abr"
+                }
+            });
+    
+            // Autocomplete for Publisher, plus dynamic filter based on the selected “litterature_type”
+            $("#id_publisher").autocomplete("{% url 'ajax-search' %}", {
+                extraParams: {
+                    search_field: "publisher",
+                    outf       : "_f__publisher",
+                    app_label  : "fiches",
+                    model_name : "Biblio",
+                    and_queries: litteratureType_query
+                }
+            });
+            $("[name=litterature_type]").change(function(){
+                // Flush the existing suggestions so a new search can happen
+                $("#id_publisher").flushCache();
+            });
+        });
+    </script>
+    
+{% endblock head_js %}
+
+{% block main_menu %}
+    {% with "biblio" as fiche_type %}{{ block.super }}{% endwith %}
+{% endblock main_menu %}
+
+{% block main_header_title %}
+    {{ new_object|yesno:"Nouvelle fiche,Modification de fiche" }} Bibliographique
+{% endblock main_header_title %}
+
+{% block but_cancel_onclick %}
+{% spaceless %}
+{% if doc.id %}
+    {# e.g. /fiches/biblio/NNN/ #}
+    return fiches_edit.cancelEdition('{% url 'display-bibliography' doc.id  %}');
+{% else %}
+    {% if prev_url %}
+        return fiches_edit.cancelEdition('{{ prev_url }}');
+    {% else %}
+        return fiches_edit.cancelEdition('{% url 'bibliography-index' %}');
+    {% endif %}
+{% endif %}
+{% endspaceless %}
+{% endblock but_cancel_onclick %}
+
+{% block main_content %}
+{% if doc.id %}
+    {% url 'display-bibliography' doc.id  as cancel_url %}
+{% else %}
+    {% url 'bibliography-index' as cancel_url %}
+{% endif %}
+
+{% if form.errors %}
+    <div class="message message-error">
+        Il y a des erreurs dans la fiche. Corrigez-les avant pour pouvoir enregistrer.
+    </div>
+{% endif %}
+
+
+{# <h2>{{ doc }}</h2> #}
+
+<form method="POST" action="" id="biblio-form-id" class="edit-form">
+    {% csrf_token %}
+    <input type="hidden" name="__continue" value="" />
+
+    {# --- Existing Biblio Fieldsets --- #}
+    {% for fs in biblio_formdef.fieldsets %}
+    <fieldset {% if fs.class %}class="{{ fs.class }}"{% endif %}>
+        {% if fs.collapsible %}<span class="ui-state-default collapse_btn"></span>{% endif %}
+        {% if fs.title %}<div class="legend">{{ fs.title }}</div>{% endif %}
+
+        {% for f in fs.fields %}
+            {% with f.field as field %}
+                {% if f.template %}
+                    {# ✅ Ensure templates (like the note formset) are included #}
+                    {% include f.template %}
+                {% elif f.name %}
+                    {# ✅ Keep fields with valid names #}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                    {% elif field.label %}
+                        <div class="fieldWrapper 
+                            {% if f.map_to %}{{ f.name }}{% else %}{{ field.html_name }}{% endif %}
+                            {% if f.required %} required{% endif %}
+                            {% if f.recommanded %} recommanded{% endif %}
+                            {% if field.errors %} errors{% endif %}
+                            {% if f.column_one or f.column_two %} two-columns{% endif %}
+                        ">
+                            {{ field.errors }}
+                            {% if f.hide_label == false %}
+                                <label for="{{ field.auto_id }}"
+                                    {% if f.class %}class="{{ f.class }}"{% endif %}>
+                                    {{ field.label }}
+                                    {% if f.tooltip_id %}
+                                        {% with f.tooltip_id as tooltip_id %}
+                                            {% tooltiplink tooltip_id %}
+                                        {% endwith %}
+                                    {% endif %}
+                                    {% if f.required %}
+                                        <span class="required_marker" title="Champ obligatoire">*</span>
+                                    {% endif %}
+                                    {% if f.recommanded %}
+                                        <span class="recommanded_marker" title="Champ recommandé">*</span>
+                                    {% endif %}
+                                </label>
+                            {% endif %}
+                            {{ field }}
+
+                            {# Special case for date fields #}
+                            {% if f.name == "date" %}
+                                <input type="hidden" name="date_f" class="vardateformat" value="%d-%m-%y" />
+                            {% elif f.name == "date2" %}
+                                <input type="hidden" name="date2_f" class="vardateformat" value="%d-%m-%y" />
+                            {% endif %}
+
+                            {{ field.help_text }}
+                            <div class="fixclear"></div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </fieldset>
+    {% endfor %}
+
+</form>
+
+
+<div id="ctxt-help-biblio-pages" style="display:none">
+    <h6>Directives pour le champ « Pages »</h6>
+    <p>L'utilisation de ce champ diffère selon le type de document :</p>
+    <p><strong>Livre</strong>: le nombre de pages total de l'ouvrage, ex: <span class="sample">220</span></p>
+    <p><strong>Chapitre de livre</strong>: numéro de la page de début – numéro de la page de fin, ex: <span class="sample">25-48</span></p>
+    ...
+</div>
+
+<div id="ctxt-help-biblio-pages" style="display:none">
+	<h6>Directives pour le champ « Pages »</h6>
+	<p>L'utilisation de ce champ diffère selon le type de document:</p>
+	<p><strong>Livre</strong>: le nombre de pages total de l'ouvrage. p.ex: <span class="sample">220</span></p>
+	<p><strong>Chapitre de livre</strong>: N° de la page de début - n° de la page de fin. p.ex: <span class="sample">25-48</span></p>
+	<p><strong>Article de revue</strong>: N° de la page de début - n° de la page de fin. p.ex: <span class="sample">123-138</span></p>
+	<p><strong>Article de dictionnaire</strong>: N° de la page de début - n° de la page de fin. p.ex: <span class="sample">123-138</span></p>
+	<p><strong>Manuscrit</strong>: se référer aux Consignes relatives à la transcription.</p>
+</div>
+<div id="ctxt-help-biblio-title" style="display:none">
+    <h6>Titre</h6>
+	<p>Titre dans son intégralité.</p>
+	<p>Pour la littérature primaire, l’orthographe et la ponctuation d’origine sont respectées.
+	Conserver les majuscules, sauf celles liées au changement de ligne. Supprimer les capitales.</p>
+	<p>Si le document ne possède pas de titre, noter «&nbsp;Sans titre&nbsp;» et mettre entre crochets le
+	titre court, suivi de la date. Ex : Sans titre [Lettre à Henri Monod, 13 août 1783]</p>
+</div>
+<div id="ctxt-help-biblio-short-title" style="display:none">
+    <h6>Titre court</h6>
+	<p>Le «&nbsp;Titre court&nbsp;» est utilisé uniquement pour les fiches de littérature primaire.</p>
+	<p>L'orthographe du titre original est modernisée, et sa longueur écourtée si le titre s'avère très long.</p>
+	<p>Pour la correspondance, noter «&nbsp;Lettre&nbsp;» suivi du destinataire. Ex : Lettre à Henri Monod.</p>
+	<p>Ce champ apparaît à la place du «&nbsp;Titre&nbsp;» lorsqu'il est rempli.</p>
+</div>
+<div id="ctxt-help-biblio-collection" style="display:none">
+    <h6>Collection et n° du volume</h6>
+	<p>Faire suivre directement le numéro après la collection (ex : Bibliothèque historique vaudoise 34)</p>
+</div>
+<div id="ctxt-help-biblio-place" style="display:none">
+    <h6>Lieu</h6>
+	<p>Mettre entre crochets si le lieu est connu mais pas noté explicitement dans l’ouvrage.</p>
+	<p>Ne rien noter s’il est inconnu.</p>
+	<p>Les noms de ville sont à mettre dans la langue de la publication.</p>
+	<p>Si le lieu indiqué est fictif, noter par ex. : Berlin [i.e. Lausanne]</p>
+</div>
+<div id="ctxt-help-biblio-edition" style="display:none">
+    <h6>Date de 1ère édition</h6>
+	<p>Remplir ce champ uniquement si l’édition du livre introduit est une réédition.</p>
+</div>
+<div id="ctxt-help-biblio-volume" style="display:none">
+    <h6>Volume</h6>
+	<p>A remplir si le volume fait partie d’une série. Créer une fiche pour un volume de série
+		uniquement si le sous-titre diffère de volume en volume.</p>
+</div>
+<div id="ctxt-help-biblio-volume-nb" style="display:none">
+    <h6>Nb de volume</h6>
+	<p>A introduire uniquement si l’ouvrage est constitué de plus d’un volume ou s’il fait partie d’une série.</p>
+</div>
+<div id="ctxt-help-biblio-publisher" style="display:none">
+    <h6>Editeur</h6>
+    <p>Mettre entre crochets si l’éditeur est connu mais pas noté explicitement dans l’ouvrage.</p>
+	<p>Ne rien noter s’il est inconnu.</p>
+</div>
+<div id="ctxt-help-biblio-recueil" style="display:none">
+    <h6>"Titre du livre" et "volume"</h6>
+	<p>Ces champs doivent être renseignés si le manuscrit fait partie d'un recueil.</p>
+</div>
+<div id="ctxt-help-biblio-cote" style="display:none">
+  <h6>Cote</h6>
+	<p>Indiquer l’abréviation de l’institution (qui figure entre parenthèses dans le champ
+    précédent), le fonds puis la côte sous laquelle le document est classé.</p>
+    <p>Ex : BCUL 2S</p>
+    <p>Ex : ACV P Charrière de Sévery Ci</p>
+</div>
+
+<script type="text/javascript">
+(function($){
+    updateDoctypeExclusiveFields($("#id_document_type").val());
+
+    function updateDoctypeExclusiveFields(docType) {
+        var fld_lst, f;
+
+        // Hide all fields dependent on the docType
+        $.each(doctype_allexclusive_fields, function(i,n){
+            try{ $("div."+n).hide(); }catch(e){}
+        });
+
+        fld_lst = doctype_exclusive_fields[docType];
+        if (typeof(fld_lst)!="undefined")  {
+            $.each(fld_lst, function(k,f){
+                try{ $("div."+f).show(); }catch(e){}
+            });
+        }
+
+        // Hide entire fieldsets if everything inside is hidden
+        $("fieldset").each(function () {
+            var hide = true,
+                $this = $(this);
+            $this.children().each(function () {
+                var $child = $(this);
+                if (!($child.hasClass("legend") ||
+                    $child.hasClass("collapse_btn") ||
+                    $child.hasClass("ui-icon"))) {
+                    hide = hide && ($child.css("display") === 'none');
+                }
+            });
+            if (hide) { $this.hide(); } else { $this.show(); }
+        });
+    }
+
+    if (fiches_edit && typeof fiches_edit.registerRecommandationCallback == 'function') {
+        fiches_edit.registerRecommandationCallback(function() {
+            // Your recommended / required fields logic here
+            // ...
+        });
+    }
+
+    $(document).ready(function(){
+        // Connect the docType dropdown to the update function
+        $("#id_document_type").change(function(){
+            updateDoctypeExclusiveFields($(this).val());
+        });
+
+        // For secondary lit type, show the 'N° de la revue' as recommended
+        $('#id_litterature_type_0, #id_litterature_type_1').change(function () {
+            var label = ($('#id_litterature_type_1').prop('checked'))
+                ? 'N° de la revue <span class="recommanded_marker" title="Champ recommandé">*</span>'
+                : 'N° de la revue';
+            $('label[for=id_journal_num]').html(label);
+        }).change();
+
+        // Make sure duplicates of text fields remain in sync
+        $('div.fieldWrapper input[type=text]').change(function () {
+            $('input[name=' + this.name + ']').val(this.value);
+        });
+
+        // Collapsible fieldsets
+        $(".collapse_btn")
+            .append(function () {
+                var icon = 'ui-icon-triangle-1-n';
+                if ($(this).parents('fieldset').hasClass('collapsed')) {
+                    icon = 'ui-icon-triangle-1-s';
+                }
+                return '<span class="ui-icon ' + icon + '"></span>';
+            })
+            .addClass("ui-state-default")
+            .hover(
+                function(){ $(this).removeClass("ui-state-default").addClass("ui-state-hover"); },
+                function(){ $(this).removeClass("ui-state-hover").addClass("ui-state-default"); }
+            )
+            .click(function(){
+                var $this = $(this);
+                $this.find(".ui-icon").toggleClass("ui-icon-triangle-1-s ui-icon-triangle-1-n");
+                $this.parents('fieldset')
+                     .toggleClass('collapsed')
+                     .children('.fieldWrapper')
+                     .toggle();
+            });
+        $('fieldset.collapsed').children('.fieldWrapper').toggle();
+    });
+})(jQuery);
+</script>
+{% endblock main_content %}

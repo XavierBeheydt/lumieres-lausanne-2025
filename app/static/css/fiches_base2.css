@@ -1,0 +1,55 @@
+
+/*
+==========-  HEADER  -===============================================
+*/
+
+/* -- Header general layout -- */
+/*
+.main .header { display: table; width: 100%; height: 28px; }
+.main .header .wrapper { display: table-row; }
+.main .header .title, 
+.main .header .status-box, 
+.main .header .toolbar-box { display: table-cell; width: 33%; vertical-align: middle; }
+.main .header { color:#776C4E; background-color: #E3DFD4; border-bottom: solid 1px #776C4E; }
+*/
+
+/*---------- TITLE ---------------------------------------
+.main .header .title { 
+    padding: 2px 0 5px 10px; white-space: nowrap; 
+    font-family: "Trebuchet MS",Helvetica,sans-serif; font-size:18px; font-weight: bold; letter-spacing:1px;
+}
+*/
+
+/* ---------- STATUS BOX ---------------------------------------*/
+.main .header .status-box { text-align: center; font-size: 13px; padding-top: 3px; }
+.main .header .status-box div { line-height: 21px; color: #000; background-color: #fff; border: solid 1px #776C4E; white-space: nowrap; padding: 0 5px; }
+.main .header .status-box .save_done { background-color: #29BB15; color: #fff; }
+.main .header .status-box .not_valid { background: #F7F67B url(images/error.png) no-repeat scroll 5px 50%; color: #3E3E1F; font-weight: bold; }
+.main .header .status-box .bio_valid { background: #29BB15 url(images/tick.png) no-repeat scroll 5px 50%; color: #fff; font-weight: bold; }
+
+
+
+
+
+
+
+/*
+==========-  LEFT MENU  -============================================
+*/
+
+
+/*
+==========-  CONTENT  -==============================================
+*/
+/*.content { font-family: Verdana,Geneva,Arial,Helvetica,sans-serif; line-height: 1.3em; overflow: hidden; padding: 10px; }*/
+
+.content h2 { margin-bottom: 15px; }
+.content h2 .biblioref-item { 
+    font-weight: 500; font-size: 107.143%; 
+	line-height: 1.4em; padding: 0.2em 0.4em 0.3333em ; 
+	background-color: #F0F0F0;
+}
+.ia-content-inner .content h2 .biblioref-item.inline_doctype { background-position: 4px 6px; padding-left: 25px; } 
+
+input[type=hidden] { display:none; }
+

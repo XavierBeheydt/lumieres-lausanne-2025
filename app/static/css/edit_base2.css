@@ -1,0 +1,249 @@
+form.edit-form { width: 900px; }
+form.edit-form fieldset { margin: 10px 0 10px; padding: 5px 10px; position: relative; }
+
+form.edit-form fieldset.no-border { border: 0 !important; }
+
+form.edit-form fieldset {
+    border: solid 1px #DFDFDF; border-top-color: #DBD7CE;
+    -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;
+} /*### THEME ###*/
+
+form.edit-form .label,
+form.edit-form .legend,
+form.edit-form label,
+form.edit-form fieldset legend {
+    font-size: 9pt; line-height: 1.5em;
+	font-weight: bold;
+	width: 150px; margin-left: 0px; padding-left: 10px;
+}
+form.edit-form .label,
+form.edit-form .legend,
+form.edit-form label,
+form.edit-form fieldset legend { 
+    color: #574C2E;
+    background-color: #DFDFDF;
+    } /*### THEME ###*/
+
+form.edit-form fieldset div.legend {
+	background-color: transparent;
+	border-bottom: 1px solid #DBD7CE;
+	font-size: 15px; font-weight: normal; letter-spacing: 0.08em;
+	width: auto; margin-top: -5px; padding: 0;
+}
+form.edit-form fieldset div.legend { border-color: #DBD7CE; } /*### THEME ###*/
+
+
+form.edit-form label { display: block; float: left; margin-right: 5px; }
+form.edit-form label.single-line { float: none; display: block; margin-bottom: 0px; }
+form.edit-form .fieldWrapper.errors label { background-color: #FCC; }
+form.edit-form input[type=checkbox] + label { display: inline; float: none; margin-right: 0; background-color: transparent; color: black; }
+
+form.edit-form textarea, form.edit-form input { font-family: Verdana,Geneva,Arial,Helvetica,sans-serif; font-size: 13px; }
+
+form.edit-form textarea { width: 650px; max-width: 650px; min-width: 650px; height: 70px; }
+form.edit-form input { border: solid 1px #999; padding: 2px; }
+form.edit-form input[type="text"] { width: 492px; margin: 0; }
+
+
+.fieldWrapper { margin: 10px 0; position: relative; }
+.two-columns { width: 396px; float: left; }
+
+.fixclear { clear: both; }
+.hidden { display: none; }
+
+.errorlist { color: red; }
+
+/* Requirement */
+.required_marker, .recommanded_marker { font-size: 10px; }
+.required_marker { color: #900; font-size: 13px; line-height: 0.1em; }
+.recommanded_marker {  }
+
+
+.formset { display: table; margin: 5px 0; }
+.formset .form-header,
+.formset .form-instance { display: table-row; }
+.formset .form-header .field,
+.formset .form-instance .field { display: table-cell; vertical-align: top; padding: 2px 5px; }
+.formset .error-in-form .field { vertical-align: bottom; background-color: #FDD; padding: 8px 10px; border: solid 0px #F00; }
+.formset .form-header .field { font-size: 80%; }
+.formset .form-header .field { background-color: #DFDFDF; }  /*### THEME ###*/
+
+.formset-new-field-bar {}
+
+.formset .extra-form { background-color: #F0EDE7; }
+.formset .extra-form .delete-field input { visibility: hidden; }
+/*.formset .new-item-toolbar { display: table-row; }
+.formset .new-item-toolbar .cell,
+.formset .new-item-toolbar .formset-add-new-field { display: table-cell; text-align: right; vertical-align: top; line-height: 1px; font-size: 1px; }*/
+.formset .formset-add-new-field { vertical-align: middle; text-align: right;}
+.formset .formset-add-new-field button { border: 0; height: 20px; width: 20px; background: #F0EDE7 url(images/add.png) 50% 50% no-repeat; }
+.formset .formset-add-new-field button span { display: none; }
+
+.formset .extra-form div.field { padding: 5px 10px; border-top: 7px solid #fff; }
+
+.formset .note-form .note-text { padding-left: 0px; }
+
+
+form.edit-form .society-formset label { color: #000; font-size: 80%; }
+
+.fieldWrapper .help_text { font-size: 10px !important; color: #999; background-color: #fff; position: absolute; top: 0; left: 160px; font-style: italic; font-weight: normal; }
+.docfile .help_text { font-size: 90% !important; color: #666; }
+label.unused .help_text { color: red; }
+
+
+form.edit-form .vardate-multifield-container .d,
+form.edit-form .vardate-multifield-container .m,
+form.edit-form .vardate-multifield-container .y { text-align: center; height: 1.3em; padding: 2px 1px; }
+form.edit-form .vardate-multifield-container .d,
+form.edit-form .vardate-multifield-container .m { width: 2em; border-right: none; }
+form.edit-form .vardate-multifield-container .y { width: 3em; }
+form.edit-form .vardate-multifield-container .m,
+form.edit-form .vardate-multifield-container .y { border-left-color: #999; border-left-style: dotted; }
+
+form.edit-form .vardate-multifield-container .bracket_d, form.edit-form .vardate-multifield-container .bracket_m {
+	margin-left: 9px; margin-right: 9px;
+}
+form.edit-form .vardate-multifield-container .bracket_y {
+	margin-left: 12px;
+}
+
+/*.formset_delete_but { background: url(images/cross.png) 0 0 no-repeat; }*/
+
+
+/* ====================  ACCESS STATUS =================== */
+.access_status { cursor: default; color: #444; font-size: 10px; font-style: italic; }
+.access_status .icon { font-size: 14px; line-height: 1em; padding: 0 6px; background: url("images/world.png") 0 0 no-repeat; }
+.access_status-public .icon { background-image: url("images/world.png"); }
+.access_status-group  .icon { background-image: url("images/group.png"); }
+.access_status-user   .icon { background-image: url("images/user_key.png"); }
+.access_status-private   .icon { background-image: url("images/user_red.png"); }
+
+/* ---------- Common List ---------- */
+.staticlist_addbox, .dynamiclist_addbox, .transcription_addbox { padding: 7px 10px 7px 25px; display: block; width: 580px; }
+.staticlist_addbox, .dynamiclist_addbox, .transcription_addbox { background-color: #EFEFEF; }
+.staticlist_add_info,
+.dynamiclist_add_info {
+	display: none;
+    background-color: #FFEEAA;
+    position: absolute; bottom: -2px; right: 3px;
+    padding: 3px 9px; width: 230px;
+    font-size: 11px !important;
+}
+
+
+/* ====================  STATIC LIST  ==================== */
+form.edit-form .staticlist-delete-item { font-size: 9px !important; margin-right: 3px; }
+form.edit-form .staticlist_value_entry { padding: 2px 0; }
+form.edit-form .staticlist_value_label { font-size: 100%; }
+form.edit-form .staticlist_values { margin: 5px 0; padding-left: 10px; }
+
+form.edit-form .staticlist_helper_addbut { font-size: 10px !important; float: right; }
+
+
+/* ====================  DYNAMIC LIST  ==================== */
+form.edit-form .dynamiclist-delete-item { font-size: 9px; margin-right: 3px; }
+form.edit-form .dynamiclist_value_entry { padding: 2px 0; }
+form.edit-form .dynamiclist_value_label { font-size: 100%; }
+form.edit-form .dynamiclist_values { margin-bottom: 5px; }
+form.edit-form .dynamiclist_helper_addbut { font-size: 10px; float: right; }
+
+
+/* ====================  BIOGRAPHY  ==================== */
+
+/* ---------- Birth/Death ---------- */
+form.edit-form  .bio-birthdeath .fieldWrapper label { font-size: 80%; color: #000; font-weight: normal; float: none; display: inline; width: auto; background-color: transparent; margin:0; padding: 0; }
+form.edit-form .birth_place input[type="text"],
+form.edit-form .death_place input[type="text"] { width: 250px; }
+.bio-birthdeath-main { display: table; width: 100%; }
+.bio-birthdeath-container { display: table-row; }
+.bio-birth, bio-death { display: table-cell; width: 380px; }
+.bio-birthdeath label { font-size: 80%; }
+
+/* --------- Relations ------------- */
+.Relation_related_person { width: 200px; }
+
+
+/* ---------- Profession ----------- */
+form.edit-form .profession-formset { border-collapse: collapse; }
+form.edit-form .profession-formset .form-header .field,
+form.edit-form .profession-formset .form-instance .field { padding: 0px 2px; }
+form.edit-form .profession-formset .form-instance .field { padding-bottom: 3px; padding-top: 4px; }
+form.edit-form .profession-formset .form-header .field { text-align: center; }
+
+form.edit-form .profession-formset .position input[type="text"],
+form.edit-form .profession-formset .place    input[type="text"] { width: 240px; }
+
+/*
+.profession-formset .form-instance div.field { border: solid 1px #C2C2C2; padding: 5px; }
+.profession-formset .form-instance div.delete-field { border: 0; }
+.profession-formset .extra-form.form-instance div.field { border: solid 1px #C2C2C2; }
+*/
+
+/* ====================  BIBLIOGRAPHY  ==================== */
+
+/* Remove background on the entire wrapper */
+.litterature_type.fieldWrapper {
+    background: transparent !important;
+    border: none;
+    padding: 0;
+    margin: 0 0 0.5rem;
+    overflow: auto;
+}
+
+/* Layout radios side by side with inline-flex */
+.litterature_type #id_litterature_type {
+    display: inline-flex;       /* or inline-block, or float the child divs */
+    align-items: center;
+    gap: 0.1rem;                  /* space between radio sets */
+    background: transparent !important;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Force each radio's label to be transparent as well */
+.litterature_type #id_litterature_type label {
+    background: transparent !important;
+    margin: 0; 
+    padding: 0;
+    font-size: 0.7rem;          /* optional: adjust text size */
+    color: #000;
+}
+
+
+/* ---------- Contribution ----------------- */
+
+.contribution-formset .form-header .contribution-person { font-size: 9pt; font-weight: bold; color: #574C2E; }
+.contribution-formset .form-header .contribution-brackets { min-width: 95px; }
+
+
+.contribution-form .contribution-person { width: 400px; max-width: 400px; min-width: 400px; overflow: hidden; }
+.contribution-form .contribution-person .ContributionDoc_person { width: 394px; max-width: 394px; }
+.contribution-form .contribution-person .name { font-size: 13px; }
+
+.contribution-form .contribution-type { width: 183px; max-width: 183px; overflow: hidden; }
+.contribution-form .contribution-type > select { width: 183px; }
+
+
+/* ---------- Misc ------------------------- */
+form.edit-form textarea#id_short_title { height: 3em; }
+
+
+
+
+
+
+/* ====================  MANUSCRIPT  ==================== */
+.transcription-list { padding: 5px 0; }
+.transcription-addbut, .transcription-delbut { font-size: 10px; }
+.transcription_addbox { padding-right: 25px; }
+
+
+
+/* ==================== Keywords ======================== */
+.fieldWrapper.keywords, .fieldWrapper.subj_person { margin-bottom: 20px; }
+.fieldWrapper.subj_person .dynamiclist_helper_input { width: 415px; }
+.fieldWrapper.subj_society .staticlist_helper_select { width: 415px; }
+
+
+ input:-moz-placeholder { color: #AAA; font-style: italic; }

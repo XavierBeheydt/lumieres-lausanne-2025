@@ -1,0 +1,10 @@
+{{ object.manuscript_b.title|safe }}
+{{ object.text|safe }}
+
+{{ object.author.get_full_name|default:object.author.username }}
+{% if object.author2 %}{{ object.author2.get_full_name|default:object.author2.username }}{% endif %}
+{% if object.reviewers.all.exists %}{% for r in object.reviewers.all %}{{ r.get_full_name|default:r.username }}{% endfor %}{% endif %}
+
+{% for note in object.notetranscription_set.all %}
+{{ note.text|safe }}
+{% endfor %}

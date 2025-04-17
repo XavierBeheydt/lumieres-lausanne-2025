@@ -1,0 +1,6 @@
+{% extends "admin/change_form.html" %}
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+;(function($){$(document).ready(function(){var owner_select = $("#id_owner"); if (!owner_select.val()) { owner_select.val(parseInt("{{ user.id }}") | "");}});})(django.jQuery);
+</script>
+{% endblock %}

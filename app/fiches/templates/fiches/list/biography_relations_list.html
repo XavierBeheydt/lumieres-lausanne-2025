@@ -1,0 +1,48 @@
+{% comment %}<!--
+   Copyright (C) 2010-2012 Université de Lausanne, RISET
+   < http://www.unil.ch/riset/ >
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% comment %}<!--
+
+	Ce template est utilisé pour afficher la liste des relation d'une personne
+	Voir les vues lumieres.views.search.relations et lumieres.views.biography.relations_list
+	Voir les template fiches/search/relations.html
+
+-->{% endcomment %}
+{% load fiches_extras %}
+{% if relation_list|length == 0 %}
+	<div class="ui-state-highlight ui-corner-all" style="padding: 5px;">
+	<p><span class="ui-icon ui-icon-info" style="float:left;margin-right:0.3em;"></span><strong>Pas de relations</strong> correspondant aux critères</p>
+	</div>
+{% else %}
+<ul>
+	{% for rel_person in relation_list %}
+	{% with rel_person.name|truncate_chars:"40" as person_name %}
+	<li class="person__{{ rel_person.id }} {% if forloop.last %}node-last{% endif %} {% cycle "row1" "row2" %}">
+		<span class="cell relation-type">{{ rel_person.type }}</span>&nbsp;
+		<span class="cell person-name">{% if rel_person.rel %}
+			<a class="relation-more-link" href="{% url 'biography-relations-list' rel_person.id %}" title="{{ rel_person.name }}">{{ person_name }}</a>
+		{% else %}
+			<span title="{{ rel_person.name }}">{{ person_name }}{% endif %}</span>
+		</span>
+	</li>
+	{% endwith %}
+	{% endfor %}
+</ul>
+{% endif %}

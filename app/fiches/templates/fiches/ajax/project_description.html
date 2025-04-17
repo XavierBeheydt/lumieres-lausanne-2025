@@ -1,0 +1,112 @@
+{% comment %}<!--
+   Copyright (C) 2013 Florian Steffen
+
+   This file is part of Lumières.Lausanne.
+   Lumières.Lausanne is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Lumières.Lausanne is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   This copyright notice MUST APPEAR in all copies of the file.
+-->{% endcomment %}
+{% load i18n thumbnail static %}
+
+{% block head_js %}
+    <script src="{% static 'js/lib/jquery/jquery.jcarousel.min.js' %}"></script>
+
+    <script>
+    $(function() {
+        // Check if jCarousel is available
+        if ($.fn.jcarousel) {
+            // Initialize each .jcarousel on the page
+            $('.jcarousel').each(function() {
+                var $carousel = $(this);
+                // Basic initialization
+                $carousel.jcarousel({ wrap: 'both' })
+                         .jcarousel('scroll', 0, false);
+
+                // Hook up .prev / .next for navigation
+                $carousel.parent().find('.prev').on('click', function(e) {
+                    e.preventDefault();
+                    $carousel.jcarousel('scroll', '-=1');
+                });
+                $carousel.parent().find('.next').on('click', function(e) {
+                    e.preventDefault();
+                    $carousel.jcarousel('scroll', '+=1');
+                });
+            });
+        } else {
+            console.warn('jCarousel plugin not found.');
+        }
+    });
+    </script>
+{% endblock head_js %}
+
+<div class="ia-content-upper">
+	<div class="ia-btn-text loaded ia-selected" data-show="proj-desc">Description</div>
+	{% if transcriptions %}
+	<div class="ia-btn-text" data-show="proj-trans" data-url="{% url 'project-transcription-list' proj.id %}">
+		Transcriptions
+	</div>
+	{% endif %}
+	{% if lit_prim %}
+	<div class="ia-btn-text" data-show="proj-prim" data-url="{% url 'project-littprim-list' proj.id %}">
+		Littérature primaire
+	</div>
+	{% endif %}
+	{% if lit_sec %}
+	<div class="ia-btn-text" data-show="proj-sec" data-url="{% url 'project-littsec-list' proj.id %}">
+		Littérature secondaire
+	</div>
+	{% endif %}
+	<div class="ia-btn-close"></div>
+	<div class="ia-btn-print"><a href="{% url 'project-display-id' proj_id=proj.id %}?print=1" target="_blank" style="float:right; width:100%; height:100%;"></a></div>
+	<div class="ia-clear"></div>
+</div>
+<div class="ia-content-center proj-desc">
+	{% with images=proj.images.all %}
+	{% if images|length > 0 %}
+	<div class="jcarousel">
+		<ul>
+			{% for img in images %}
+			<li>
+				<a href="{{ img.image.url }}" data-lightbox="project"  {% if img.legend %}data-title="{{ img.legend }}"{% endif %}>
+		            {% thumbnail img.image "450x333" crop="center 10%" as thumb %}
+				    <img alt="" width="450" height="333" src="{{ thumb.url }}"/>
+				    {% endthumbnail %}
+			    </a>
+			    {% if img.legend %}<p class="legend">{{ img.legend }}</p>{% endif %}
+			</li>
+			{% endfor %}
+		</ul>
+		{% if images|length > 1 %}
+		<a class="prev"></a>
+		<a class="next"></a>
+		{% endif %}
+	</div>
+	{% endif %}
+	{% endwith %}
+	<h2 class="ia">{{ proj.name }}</h2>
+	{{ proj.description|safe }}
+	{% with documents=proj.documents.all %}
+	{% if documents|length > 0 %}
+	<div class="ia-document">
+		<h3 class="ia">Documents</h3>
+		<ul>
+		{% for doc in documents %}
+		<li><a href="{{ doc.file.url }}" target="_blank">{{ doc.title|default:doc.file.name }}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	{% endwith %}
+	<div class="clear"></div>
+</div>
