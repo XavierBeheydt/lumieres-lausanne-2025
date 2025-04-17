@@ -1,50 +1,93 @@
-services:
+# Project: LLv2025
 
-  db:
-    container_name: db
-    image: mysql:9.2.0
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./sql:/home/sql-dumps
-      - ./mysql-custom.cnf:/etc/mysql/conf.d/mysql-custom.cnf
-    environment:
-      MYSQL_DATABASE: django_db
-      MYSQL_USER: django_user
-      MYSQL_PASSWORD: django_password
-      MYSQL_ROOT_PASSWORD: root_password
-    ports:
-      - "3306:3306"
-    networks:
-      - LL2025
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# Contributors:
+#  - Xavier Beheydt <xavier.beheydt@gmail.com>
 
-  django:
-    container_name: django
-    build:
-      context: ./django
-    volumes:
-      - ./django:/app
-      - ./django/lumieres/media:/app/lumieres/media
-    working_dir: /app/lumieres
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - "8000:8000"
-    environment:
-      POSTGRES_NAME: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    depends_on:
-      - db
-    networks:
-      - LL2025
+name: LLv2025
 
 networks:
-  LL2025:
-    driver: bridge
+  frontend:
+  backend:
+
 
 volumes:
-  mysql_data:
+  db-data:
+
+
+services:
+  app:
+    image: python:3.12-bullseye
+    env_file:
+      - .env
+    depends_on:
+      - db
+    links:
+      - db
+    profiles: [ test, prod ]
+
+  dev:
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
+    env_file:
+      - .env
+    # Uncomment if you want to override the service's Dockerfile to one in the .devcontainer 
+    # folder. Note that the path of the Dockerfile and context is relative to the *primary* 
+    # docker-compose.yml file (the first in the devcontainer.json "dockerComposeFile"
+    # array). The sample below assumes your primary file is in the root of your project.
+    #
+    # build:
+    #   context: .
+    #   dockerfile: .devcontainer/Dockerfile
+
+    volumes:
+      # Forwards the local Docker socket to the container.
+      - /var/run/docker.sock:/var/run/docker-host.sock
+      # Update this to wherever you want VS Code to mount the folder of your project
+      - ..:/workspaces:cached
+      - ${DEV_MEDIA_PATH}:/workspaces/lumieres-lausanne-2025/mnt/media:ro
+      - ${DEV_SQL_PATH}:/workspaces/lumieres-lausanne-2025/mnt/sql:ro
+
+    # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
+    # cap_add:
+    #   - SYS_PTRACE
+    # security_opt:
+    #   - seccomp:unconfined
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    networks:
+      - frontend
+      - backend
+    profiles: [ dev, test ]
+
+  search:
+    image: solr:9.8.1-slim
+    # TODO check https://hub.docker.com/_/solr
+    profiles: [ prod, test, dev ]
+
+  db:
+    image: mysql:9.3
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/mysql
+      # XXX: Check if this is needed or copying into the container is enough
+      - ./db/mysql-custom.cnf:/etc/mysql/conf.d/mysql-custom.cnf:ro
+    networks:
+      - backend
+    profiles: [ prod, test, dev ]
+    # TODO: Check if this is needed and for other containers
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    links:
+      - db
+    networks:
+      - backend
+    environment:
+      PMA_HOST: db
+    profiles: [ dev, test ]
