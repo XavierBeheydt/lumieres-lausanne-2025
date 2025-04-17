@@ -1,5 +1,0 @@
-{# ---------- Authors ---------- #}
-{% with object.get_contributors as c %}
-{{ c.first_author_name }}
-{% if c.authors %} ; {{ c.authors|join:" ; " }}{% endif %}{% if c.publishers %} ; {{ c.publishers|join:" ; "}}{% endif %}{% if c.translators %} ; {{ c.translators|join:" ; " }}{% endif %}{% if c.directors %} ; {{ c.directors|join:" ; " }}{% endif %}
-{% endwith %}

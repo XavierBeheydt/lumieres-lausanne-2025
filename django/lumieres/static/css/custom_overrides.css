@@ -1,6 +1,0 @@
-.fieldWrapper.edition {
-    pointer-events: none;
-}
-.fieldWrapper.edition input {
-    pointer-events: auto;
-}

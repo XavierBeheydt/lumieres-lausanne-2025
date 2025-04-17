@@ -59,3 +59,9 @@ venv/
 # Others
 *.ipynb_checkpoints
 .mypy_cache/
+
+# Project specific
+
+tmp/
+mnt/
+app/media
