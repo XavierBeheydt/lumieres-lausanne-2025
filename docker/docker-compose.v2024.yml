@@ -1,0 +1,53 @@
+# Project: LL2024
+# Reworked by: Copyright Xavier Beheydt. All rights reserved.
+
+name: LLv2024
+
+networks:
+  llv2025_frontend:
+    external: true
+
+
+services:
+  app:
+    build: ../tmp/v2024/app
+    depends_on:
+      - db
+    ports:
+      - 8101:8000
+    networks:
+      - llv2025_frontend
+
+  search:
+    build: ../tmp/v2024/search
+    networks:
+      - llv2025_frontend
+
+  db:
+    build: ../tmp/v2024/db
+    networks:
+      - llv2025_frontend
+    environment:
+      - MYSQL_DATABASE=lumie_django_v3
+      - MYSQL_ROOT_PASSWORD=password
+
+  # Dev services
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - 8102:80
+    environment:
+      PMA_HOST: db
+    networks:
+      - llv2025_frontend
+
+  tools:
+    build: ../tmp/v2024/tools
+    image: tools
+    networks:
+      - llv2025_frontend
+    command: sleep infinity
