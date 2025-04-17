@@ -1,0 +1,60 @@
+[project]
+name = "lumieres-lausanne-2025"
+description = """
+A Django web project allowing researchers to publish their discoveries 
+about writings from the Enlightenment period in Lausanne and the canton 
+of Vaud.
+"""
+authors = [
+    { name = "Xavier Beheydt", email = "xavier.beheydt@gmail.com" }
+]
+dependencies = [
+    "Pillow>=9.0,<10.0",
+    "django-ckeditor>=6.7.2",
+    "django-haystack>=3.0",
+    "django-js-asset>=2.2.0",
+    "django>=5.2",
+    "mysqlclient>=2.2.7",
+    "pysolr>=3.9.0",
+    "sorl-thumbnail>=12.7.0",
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["app"]
+
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 119 # Django recommendation
+
+[tool.isort]
+profile = "black"
+line_length = 119 # Django recommendation
+known_third_party = ["django", "requests"]
+
+[tool.mypy]
+files = ["app"]
+ignore_missing_imports = true
+strict_optional = true
+
+[tool.pylint]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "C0301",  # line-too-long
+    "R0903",  # too-few-public-methods
+    "E0015",  # bad line-length parameters
+]
+line-length = 119 # Django recommendation
+# FIXME: this is not working
+ignore = [
+    # "app/migrations",
+    # "app/tests",
+    # "app/static",
+    # "app/templates",
+    "temp",
+]
