@@ -28,7 +28,7 @@
 	"runServices": [
 		"dev",
 		// "app",
-		"db",
+		"db"
 		// "search",
 		// "phpmyadmin"
 	],
