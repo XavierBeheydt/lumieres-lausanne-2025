@@ -10,7 +10,7 @@ networks:
 
 services:
   app:
-    build: ../tmp/v2024/app
+    build: ../deps/v2024/app
     depends_on:
       - db
     ports:
@@ -19,12 +19,14 @@ services:
       - llv2025_frontend
 
   search:
-    build: ../tmp/v2024/search
+    build: ../deps/v2024/search
     networks:
       - llv2025_frontend
+    ports:
+      - 8983:8983
 
   db:
-    build: ../tmp/v2024/db
+    build: ../deps/v2024/db
     networks:
       - llv2025_frontend
     environment:
@@ -46,7 +48,7 @@ services:
       - llv2025_frontend
 
   tools:
-    build: ../tmp/v2024/tools
+    build: ../deps/v2024/tools
     image: tools
     networks:
       - llv2025_frontend

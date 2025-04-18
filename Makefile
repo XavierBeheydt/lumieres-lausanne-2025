@@ -151,11 +151,11 @@ clean-build: ## remove build artifacts
 V2024_SERVICES ?= app db phpmyadmin search
 
 .PHONY: v2024/pull
-tmp/v2024:
-	@echo "Pulling the 2024 version rebuilt of the project..."
-	@git clone https://github.com/XavierBeheydt/lumieres-lausanne-2024 tmp/v2024
-v2024/pull: tmp/v2024
 v2024/pull:  ## Pull the latest version of the project
+	@echo "Initializing and updating the 2024 version submodule..."
+	@git submodule init
+	@git submodule update --remote --recursive
+	@echo "Submodule for the 2024 version updated."
 
 .PHONY: v2024/up
 v2024/up:  ## Up all v2024 services
