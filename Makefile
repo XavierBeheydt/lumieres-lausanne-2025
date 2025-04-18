@@ -33,11 +33,14 @@ dev/init:  ## Initialize the development environment
 .PHONY: install
 install:  ## Install dependencies
 	@echo "Installing dependencies..."
-	ln -sf $(CURDIR)/mnt/media $(CURDIR)/app/media
 	pip install -e .
+
+./app/media:
+	ln -sf $(CURDIR)/mnt/media $(CURDIR)/app/media
 
 .PHONY: up
 up:  ## Up all services
+up: ./app/media
 	@echo "Up all services..."
 	docker compose -f docker-compose.yml up -d ${SERVICES}
 
